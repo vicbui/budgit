@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>My Page</title>
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+			<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+			<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>	
+			<script type="text/javascript" src="cordova-2.1.0.js"></script>
+			<script type="text/javascript" src="js/index.js"></script>
+			
+
+			<link rel="stylesheet" href="css/index.css" type="text/css" />
+			<link href="css/jquery.jqplot.css" rel="stylesheet" type="text/css" />
+			<link href="css/mobiscroll.css" rel="stylesheet" type="text/css" />
+
+			<script type="text/javascript">
+            
+				// alert("test");
+				
+				$.support.cors = true;
+				$.mobile.allowCrossDomainPages = true;
+				var search_results=new Array();
+				var cat=new Array();
+				var str="";
+				var search_results=new Array();
+				
+				var lastdate=new Date("01/01/1001");
+				var db ;
+				var cats=new Array();
+				var timer;
+    			var symbols= new Object();
+    			var transactionDate = new Object();
+				var last_word,symbol="$";
+				var trackDecimal=0;
+				var date_pending=new Object();
+				var afternumber;
+				
+         // document.addEventListener("deviceready", onDeviceReady, false);
+    
+           // $(document).bind('deviceready',function()
+		 //function onDeviceReady()
+            {
+            
+				$('#suggestions').bind('pageinit', function() {
+ 						//$('#suggestions').listview();    						
+						setListDefault();
+
+							//.hide();
+					
+				});
+
+				$(document).live('pageinit',function(event){					
+
+						showChart();
+						db= openDB();		
+						db.transaction(populateDB, errorDB, successDB);
+						db.transaction(getCats,errorDB,function(){
+									 						 // alert("success");
+																 //setListDefault();
+																 search_results=cat;
+									   //alert(cat[0]);
+									   //alert(search_results[0]);
+									   							//console.log(search_result);
+																 //alert("Test");
+																// $("#suggestions").show();
+																});	
+						//$('#errorMsg').scrollview();
+						/*date picker */
+						$("#scroller").scroller({ 
+													display :'modal',
+													preset : 'date',
+													theme : 'android-ics',
+													dateOrder: 'ddmmyy',
+													dateFormat:  'dd-mm-yy',
+													setText : 'Select',
+ 													anchor : $("#dateLnk"),
+ 													height:40,
+ 													width:60,
+ 													headerText:false,
+ 													onSelect: function(value,inst){
+ 														 $("#dateLnk").text(jQuery.scroller.formatDate('dd-mm-yy',$("#scroller").scroller('getDate')));	
+					
+ 													}
+												});
+					 	$("#dateLnk").text(jQuery.scroller.formatDate('dd-mm-yy',$("#scroller").scroller('getDate')));	
+					 	$("#dateLnk").click(function(event){
+							event.preventDefault();
+							
+							$("#scroller").scroller("show");
+
+							return false;
+						});
+
+						
+					 	function length_numbers()
+					 	{
+
+					 		var i=findNextSign(1,$("#track_area").val());
+					 		//alert(i);
+					 		var string=$("#track_area").val().substring(0,i);
+					 		//alert(string);
+					 		return string.length;
+					 	}
+
+					 	$("#track_area").bind("taphold",function(){
+					 	//	alert("test");
+					 	})
+
+						$("#track_area").bind("click taphold",function() {
+							//alert($("#track_area").getCursorPosition());
+					        
+
+					        if ($('#track_area').getCursorPosition()<length_numbers())
+    						{
+    							$('#track_area').setCursorPosition(length_numbers());	
+    							if (symbol!="$")
+    							{
+    									symbols[symbol]=0;
+    									symbol="$";
+    									symbols[symbol]=0;
+    							}	
+    						}
+
+    						var text=$("#track_area").val();
+								/*********** find nearest symbol *********************/
+    					    var currentString=text.substring(0,$("#track_area").getCursorPosition());
+    					    var pos=findLastSign(currentString);
+
+    					  //  alert(currentString.charAt(pos));
+    					    if ((currentString.charAt(pos)!=symbol)|| (pos!=symbols[symbol]))
+    					    {
+    					    	if (symbol=="#")
+									turnAutoOff();
+								if (pos!=currentString.length)
+    								{	
+    									symbols[symbol]=0;
+    									symbol=currentString.charAt(pos);
+    									symbols[symbol]=pos;
+    								}
+    							
+    					    }	
+    						/******************************************************/
+						});
+						
+    					
+//  alert($("#track_area").getCursorPosition()<4);
+
+
+					 	$('#track_area').keypress(function(e) {
+
+					 		if ((e.which==36)||(e.which==35)||(e.which==126))
+					 		{
+
+					 			if ($('#track_area').val().indexOf(String.fromCharCode(e.which))>-1)
+					 			{
+					 				$("#errorMsg").text("You can't enter "+String.fromCharCode(e.which)+" more than once");
+					 				e.preventDefault();
+					 				return;
+					 			}
+
+					 		}
+							if ((symbol=="$")&&(e.keyCode!=8))
+    						{
+    							 if(e.charCode == 35) { //@ Symbol
+    							 	//alert("test");
+    							 	 //$("#track_area").setCursorPosition(2);
+
+					             enterHashtag(e);
+    							////	$("#errorMsg").text("");
+
+					         	 }
+					         	 else
+					         	 {
+					         
+
+	    							if (e.keyCode==32)
+	    							{
+	    								enterHashtag(e);
+	    							}
+	    							else
+	    							{
+	    								var character=String.fromCharCode(e.keyCode);
+	    								console.log(character+" "+e.keyCode);
+	    								
+	    								enterNumber(character);
+	    								//if (e.keyCode!= 32)
+	    								e.preventDefault();
+	    								
+	    							}
+
+    							}
+    						}
+    						else{
+
+	    					 	clearInterval(timer);
+	    					 		timer = setInterval(trackInput, 100);
+	    								console.log("input");
+    						}
+
+					    });
+
+
+
+    					$('#track_area').keyup(function(e){
+
+    						
+
+    						var text= $('#track_area').val();
+    						if (text=="")
+    							$('#track_area').val("$0.00");
+
+
+    						/*********** find nearest symbol *********************/
+    					    var currentString=text.substring(0,$("#track_area").getCursorPosition());
+    					    var pos=findLastSign(currentString);
+
+    					  //  alert(currentString.charAt(pos));
+    					    if ((currentString.charAt(pos)!=symbol)|| (pos!=symbols[symbol]))
+    					    {
+    					    	if (symbol=="#")
+									turnAutoOff();
+								if (pos!=currentString.length)
+    								{	
+    									symbols[symbol]=0;
+    									symbol=currentString.charAt(pos);
+    									symbols[symbol]=pos;
+    								}
+    							
+    					    }	
+    						/******************************************************/
+
+
+    					/*	if ((text.lastIndexOf(symbol)==-1) || (text.lastIndexOf(symbol)!=symbols[symbol])) 
+    							{
+    								//alert(symbol+" symbol");
+    								text.lastIndexOf(symbol);
+    								//alert(symbol+"a"+symbols[symbol]+"a"+text.lastIndexOf(symbol));
+    								if (symbol=="#")
+										turnAutoOff();
+
+    								var deleteString=text.substring(0,$("#track_area").getCursorPosition());
+    								//alert(deleteString+"string");
+    								var pos=findLastSign(deleteString);
+    								//alert(pos);
+    								if (pos!=deleteString.length)
+    								{	
+    									symbols[symbol]=0;
+    									symbol=deleteString.charAt(pos);
+    									symbols[symbol]=pos;
+    								}
+    								else
+    									symbol="~";
+    								//alert(symbol);
+    							}
+					*/
+
+    						
+    						
+	    						 if (e.keyCode == 13)
+	    						 {
+	    						 	entertoPending(text);
+	    						 }
+
+    						 	if (symbol=="#") 
+	    						{
+
+	    							//alert("test");
+	    							var last_char=text.substr(text.length-2,1);
+	    							if (last_char!=" ")
+	    							{
+	    								turnAutoOn();	
+		    							populateList(symbol);
+		    						}	
+	    						}
+
+								
+
+
+
+	    						if (symbol=="$")
+    							{
+    									var pos=findNextSign(text.indexOf("$")+1,text);
+    									$('#track_area').setCursorPosition(pos);
+    								
+    								//alert(symbol);
+    								if (e.keyCode != 8)
+    								{
+    									//alert("test");
+    								//	var beforeSign=text.substring(0,text.indexOf("$")+1);
+	    							//	var afterSign=text.substring(text.indexOf("$")+1,text.length);
+	    								//alert(afternumber);
+	    								
+		    							/*var deleteString=text.substring(0,$("#track_area").getCursorPosition());
+		    							//alert(deleteString+"aaa");
+		    							var last_space=$("#track_area").getCursorPosition()-1;
+		    							var last_char=text.charAt(last_space);
+		    							alert(last_char);
+		    							//if 
+		    							
+		    						//		console.log(afternumber);
+		    							if ((isNumber(last_char)) && (text.charAt(last_space-2)=="."))
+		    							{
+		    							//	alert(afternumber);
+		    						//		$('#track_area').val($('#track_area').val()+afternumber);
+		    								
+		    						//		afternumber="";
+	    								}*/	    							//	console.log(length_numbers());
+	    							}
+    							}
+
+    					})
+
+    					$('#track_area').keydown(function(e){
+    						//e.preventDefault();
+
+
+    						//alert(e.charCode);
+    						//if ((e.shiftKey) && (String.fromCharCode(e.keyCode)=="3"))
+    						//	alert("test");
+
+    						//alert();
+
+
+       						var text= $('#track_area').val();
+    						if ($('#track_area').getCursorPosition()<length_numbers())
+    						{
+    							$('#track_area').setCursorPosition(length_numbers());
+    							if (symbol!="$")
+    							{
+    									symbols[symbol]=0;
+    									symbol="$";
+    									symbols[symbol]=0;
+    							}
+
+    							e.preventDefault();
+    							return false;
+    							//alert("test");	
+    						}
+    						else
+    						{
+
+	    						if (e.keyCode==8)
+	    						{
+	    							
+	    							//alert(symbol);
+
+	    							//alert();
+
+	    							//alert(symbol);
+	    							//alert(text.substr(text.length-1,1)+ symbol);
+
+	    						//	alert(last_char);
+		    						/*if (text.indexOf(symbol)==-1)
+		    						{
+		    						}*/
+		    					/*	if (text.indexOf("$")==-1) 
+		    						{
+
+		    							if (symbol=="+")
+		    							{
+		    								text=text.replace("+ ","");
+		    								$('#track_area').val(text);
+		    							}
+		    							else
+		    								if (symbol=="-")
+		    								{
+		    									text= text.replace("- ","");
+		    								 	$('#track_area').val(text);
+		    								}
+		    							 
+		    						}*/
+		    					
+		    						if (symbol=="$") 
+		    						{
+		    							//alert("test");
+		    						//	var last_space=text.indexOf(" ",text.indexOf("$")+2);
+		    							var beforeSign=text.substring(0,text.indexOf("$")+1);
+		    							var afterSign=text.substring(text.indexOf("$")+1,text.length);
+		    							//alert(beforeSign+"before"+afterSign);
+		    							//var last_space=findNextSign(afterSign)+beforeSign.length;
+		    							//alert(last_space);
+		    							//alert(last_space+" "+text.charAt(last_space)+" last pace");
+									    							
+		    							//alert(last_space+" last last_space");
+		    							//if (last_space==-1)
+		    							//{
+		    							//	last_space=text.length;
+		    							//}
+
+		    							var deleteString=text.substring(0,$("#track_area").getCursorPosition());
+		    							//alert(deleteString+"aaa");
+		    							var last_space=$("#track_area").getCursorPosition()-1;
+		    							//alert(text.charAt(last_space));
+
+		    							var last_char=text.charAt(last_space);
+		    							//alert(text.charAt(last_space-2));
+		    							
+		    			//				if (isNumber(last_char)) alert(text+" "+last_char);
+		    					//		afternumber="";
+		    							if ((isNumber(last_char)) && (text.charAt(last_space-2)=="."))
+		    							{
+		    								e.preventDefault();
+		    								trackDecimal--;
+		    								var number=text.substring(text.indexOf("$")+1,last_space+1);
+		    							//	alert(number);
+		    								var decimal=number.substring(number.indexOf(".")+1,number.length);
+		    								var n=number.substring(0,number.indexOf("."));
+		    								afternumber=text.substring(last_space+1,text.length);
+										
+		    								//alert(afternumber+" "+trackDecimal);
+
+		    								//if (afternumber.length>0)
+		    								//	afternumber=" "+text.substring(last_space+1,text.length)+" ";
+
+		    								//alert(afternumber);
+		    							//	if (n.length>1)
+		    							//	{
+		    									decimal=n.substr(n.length-1,1)+decimal;
+		    									n=n.substring(0,n.length-1);
+		    									
+		    									//alert(n+"."+decimal);
+		    									if (n=="") n="0";
+		    									if (decimal.length==1) 
+		    										decimal="0"+decimal;
+		    									//console.log(n+"d"+decimal);
+		    							
+		    								decimal=decimal.substring(0,decimal.length-1);
+		//    								console.log(decimal+" decimal");
+			
+
+		    									if ((n=="0") && (decimal=="00"))
+		    									{
+		    										trackDecimal=0;
+		    										//var stringToReplace=symbol+"0.00";
+		    										
+		    									//	var newtext=$('#track_area').val().replace(stringToReplace,"");
+		    									//	$('#track_area').val(newtext);
+		    										//alert(afternumber);
+		    										
+		    									//	return false;
+		    									}
+		    									
+		    									$('#track_area').val(text.substring(0,text.indexOf("$")+1)+n+"."+decimal);
+		    									$('#track_area').val($('#track_area').val()+afternumber);
+
+		    								text=$('#track_area').val();	
+			    							var pos=findNextSign(text.indexOf("$")+1,text);
+	    									$('#track_area').setCursorPosition(pos);
+		    									//else
+											
+		    							//	}
+		    							//	else
+		    							//	{
+
+		    							//	}
+
+		    								//	alert(n+"r"+decimal);
+		    								//if (n!="0")
+		    								//{
+
+		    								//}
+
+		    								//alert(decimal+"r"+n);
+
+		    								//alert(number);
+		    								//alert(chare);
+		    							/*	if ((no=="0.00") && (chare=="$"))
+		    									$('#track_area').val("");
+		    								else
+		    								{
+		    									var string=text.substring(text.indexOf(symbol),text.indexOf("$")+1);
+		    									//alert(string);
+		    									//alert(text+" "+string);
+		    										
+		    								}*/
+
+
+		    							
+		    							}
+
+		    						}
+		    						
+		    				
+		    						/*if ((text.indexOf(symbol)==-1)|| (symbol==" "))
+		    						{
+		    							if (symbol=="#")
+	    									turnAutoOff();
+	    								if (symbol!=" ")
+		    							{	
+		    								symbols[symbol]=false;
+	    									symbol=" ";
+	    								}
+	    								for (var i=text.length-1; i>=0;i--)
+	    								{
+	    									if (iSym(text.charAt(i)))
+	    									{
+	    										symbol=text.charAt(i);
+	    										if (symbol=="#")
+			    								{
+			    									turnAutoOn();	
+			    									populateList(symbol);
+			    									//alert("test");
+			    									//	console.log(symbol+"symbol");
+			    								}
+			    								symbols[symbol]=true;
+	    										break;
+	    									}
+	    								}
+	    								
+
+	    							}*/
+		    						//trackInput();
+		    						//alert(symbol);
+	    						}
+		      				}
+		      				//trackInput();
+
+    							
+    					});
+
+
+/*****************************charting*****************************************************/
+
+						function showChart()
+						{
+							  $.jqplot('barChart', [[40],[100]], {
+					  	  stackSeries: true,
+							seriesDefaults: {
+						      renderer: $.jqplot.BarRenderer,
+						      rendererOptions: {
+						        varyBarColor: true,
+						        barDirection: 'horizontal',
+						          highlightMouseOver: false,
+							        highlightMouseDown: false,
+							        highlightColor: null,
+
+						      },
+						      pointLabels: { 
+						        show: true,
+						      },
+						      shadow: false,
+						    },
+						    axes: {
+						      xaxis: {
+						        //renderer: $.jqplot.CategoryAxisRenderer,
+						       //
+						        tickOptions: {
+						          showGridline: false,
+						          showMark: false,
+						          //fontFamily: 'DosisBold',
+						          textColor: '#ffffff',
+						          fontSize: 'larger',
+						          showLabel:false
+						        },
+						      },
+						      yaxis: {
+						      	renderer: $.jqplot.CategoryAxisRenderer,
+						        // ticks: ['love','hate'],
+						        tickOptions: {
+						          showGridline: false,
+						          showMark: false,
+						          fontFamily: 'DosisBold',
+						          textColor: '#ffffff',
+						          fontSize: 'larger',
+						          showLabel:false
+						        },
+						      },
+
+						    },
+						    seriesColors: ["#bc4427", "#74B042", "#949629", "#5e8c41", "#739c9b", "#3483b3"],
+						    grid: {
+						      background: '#1d1d1d',
+						      drawGridLines: false,
+						      borderWidth: 0.0,
+						      shadow: false,
+						    },
+
+						    highlighter: { show: false },
+
+						  });
+
+							
+						}
+
+
+/*****************************charting*****************************************************/
+
+
+						
+						$("#suggestions li").live('click', function(e) {
+							e.preventDefault();
+							//alert("test");
+							var title=$(this).attr('title');
+							if (title!='not found')
+							{
+								var text=$('#track_area').val();
+								text=text.substr(0,text.indexOf("#")+1)+title;
+								
+								turnAutoOff();
+								symbols[symbol]=false;
+	    						symbol=" ";
+
+								$('#track_area').focus();
+	    						$('#track_area').val(text+" ");
+    						}
+						});
+						function entertoPending(text)
+						{
+							  $('#errorMsg').html("");
+    						  var line=text.substr(0,text.length);
+    						  var newline="\n"+line;
+    						  var posBreak=newline.lastIndexOf("\n");
+    						 // console.log(newline);
+    						 // console.log(posBreak);
+    						  var msg=stringValidate(newline.substring(posBreak,newline.length));
+
+    						   if (msg!="")
+    						   {
+    						 //  	e.preventDefault();
+    						   	//alert(msg);
+    						   	$('#track_area').val(line);
+    						   	$('#errorMsg').html(msg);
+    						   //	return false;
+    						   }
+    						   else
+    						   {
+    						   	 var daten=$("#scroller").scroller('getDate');
+    						   	 var date=jQuery.scroller.formatDate('dd-mm-yy',daten);
+    						   	 	
+    						     if (lastdate.getTime()!=daten.getTime())
+    						   	 {
+    						   	 	//alert(daten+" "+lastdate);
+    						   	 	
+    						   	 	var string=trimString($('#resultMsg').html())+"<div class='"+date+"'> On "+ date +" :</div>";
+    						   	 	$('#resultMsg').html(string);
+    						   	 	date_pending[date]=0;
+    						   	 	lastdate=daten;
+    						   	 }
+    						   
+    						    var transType=$('input[name=transType]:checked', '#radioBtns').val();
+    						   	
+
+    						   //	 alert($('#resultMsg').html());
+    						   	var resultMsg= $('#resultMsg').html()+"<div class='"+date+"'' style='font-size:11px'>"+transType+trimString(text)+"<a class='deleteLink' href='#''> <img src='img/round_delete.png' width='7px' height='7px'/></a></div>";
+    						   
+    						   	date_pending[date]++;
+    						   	//console.log(resultMsg);
+    						   	$('#resultMsg').html(resultMsg);
+    						   	$('#track_area').val("$0.00");
+    						   
+    						   	trackDecimal=0;
+    						   	symbols[symbol]=false;
+    							symbol="$";
+    						   }
+    						  // else
+    						 
+						}
+
+						function enterHashtag(e) {
+							//alert("rewq");
+	    								$('#track_area').val($('#track_area').val()+" #");
+	    								symbols[symbol]=0;
+	    								symbol="#";
+	    								symbols[symbol]= $('#track_area').val().length-1;
+	    								
+
+	    								turnAutoOn();
+	    								populateList(symbol);
+
+	    								
+	    								$("#errorMsg").text("");
+	    								e.preventDefault();
+	    						
+
+						}
+
+						function iSym(chara)
+						{
+							//console.log(chara);
+							//console.log(symbols);
+							//alert(chara);
+							for (var sym in symbols)
+							{	
+								//alert(sym);
+								if (chara==sym)
+									return true;
+							}
+							return false;
+
+						}
+						
+						function trackInput(){
+							//alert(symbol);
+							//alert("test")
+							clearInterval(timer);
+    						var text= $('#track_area').val();
+    						//alert(trimString(text)+"a");
+
+    						var last_char=text.substr(text.length-1,1);
+    						//alert(last_char);
+    					//	
+    						//alert(isSymbol(" "));
+
+    						//alert(symbol+"symbol");
+    						//console.log(symbol+ "symbol");
+    						if ((iSym(last_char)) || (text=="")|| (last_char==" ") )
+    						{
+    						//	if ((text.indexOf(symbol)==-1)||((text.indexOf(symbol)>=-1)&&(last_char==" ")))
+    							{
+	    							if (symbol=="#")
+	    							{
+	    								//alert("test");
+	    								turnAutoOff();
+	    							}
+	    							symbols[symbol]=0;
+	    							symbol=last_char;
+	    							symbols[symbol]=text.length-1;
+		    						
+	    								if (symbol=="#")
+			    								{
+			    									turnAutoOn();	
+			    									populateList(symbol);
+			    									//	console.log(symbol+"symbol");
+			    									//symbols[symbol]=true;
+			    								}
+			    								else
+			    									if (symbol=="$")
+		    										{
+
+		    											//$('#track_area').val(text+" $0.00");
+		    											//trackDecimal=0;
+		    											//$$('#track_area').
+		    										}
+		    					}	
+    						}
+    						else
+    						{
+
+    							if (symbol=="#") 
+	    						{	
+	    							//turnAutoOn();	
+	    							populateList(symbol);
+	    						}
+	    						else
+	    						{
+	    							//if (symbol=="+" || symbol=="-")
+	    							//{
+	    							//	if (isNumber(last_char))
+	    							//	{
+	    									//var final_text="";
+	    									
+	    							//	}
+
+	    							//}
+	    						}
+
+    						}
+
+    						
+    					/*	if (symbol==" ") 
+    						{
+    							
+	    						
+	    						
+    						}
+
+    					*/
+
+
+					}
+
+					function setListDefault()
+					{
+
+							//alert("test");
+							search_results=cat;
+							str="";
+							//console.log(search_results);	
+							var sugList = $("#suggestions");
+				 				//console.log(search_results);
+				 			for (var i=0, len=search_results.length;i<len;i++)
+    						{
+
+    							str += "<li data-icon='false' title='"+search_results[i]+"''><a style='font-size:12px'>" +search_results[i] +"</a></li>";
+    						}
+    						//console.log(str);
+    						
+    						sugList.html(str);
+    						sugList.listview("refresh");
+
+					}
+
+					function turnAutoOn()
+					{
+						//symbols[symbol]=true;
+						//alert("on");
+						$('#track_area').css('max-height',"35px");
+	    				$('#instructionTxt').hide();
+	    				$('#suggestions').show();
+						//return true;
+
+					}
+					function turnAutoOff()
+					{
+						//symbols[symbol]=false;
+    					$('#instructionTxt').show();	
+    					$('#track_area').css('max-height',"100px");
+    					$('#suggestions').hide();
+    					clearSuggestList();
+    					return false;
+					}
+
+					$(".deleteLink").live('click',function(){
+						//	event.preventDefault(); 
+							
+  							var myClass = $(this).parent().attr("class");							
+
+							var parent=$(this).parent().parent();
+  							
+							$(this).parent().remove();
+							date_pending[myClass]--;
+							if 	(date_pending[myClass]==0)
+							{
+
+  								parent.find("."+myClass).each(function(){
+  									//alert
+  									$(this).remove();
+  								});
+  								lastdate=new Date("01/01/1001");
+  							}
+							/*$(this).parent().remove();
+								count_pending--;
+								console.log(count_pending);
+							if (count_pending==0)
+								$('#resultMsg').html("");*/
+							return false;
+					});
+
+
+					$("input[name=transType]",'#radioBtns').bind( "click", function(event, ui) {
+  							//alert("test");
+  							$("#track_area").focus();
+					});
+
+
+					$(".links").click(function(event){
+						//alert("test");
+							event.preventDefault(); 
+						
+							var text= $('#track_area').val();
+							var lastSymbol="";
+
+							 if ($('#track_area').val() == $('#track_area')[0].title)
+			        		 {
+			            		$('#track_area').removeClass("defaultTextActive");
+			            		$('#track_area').val("");
+			        		 }
+
+
+			        		symbols[symbol]=0;
+			        		lastSymbol=symbol;
+			       			symbol=$(this).attr("name");
+					 		symbols[symbol]=text.length-1;
+					
+						//	alert(symbol);
+							
+							if ((symbol!="+") && (symbol!="-"))
+							{
+								if ((text.charAt(text.length-1))!=" ")
+									text=text+" ";					
+								text=text+symbol;
+							}
+							//else
+							//	text=text+symbol+"0.00";
+							
+							
+								$('#track_area').focus();
+	    						$('#track_area').val(text);
+	    					
+								if (symbol=="#")
+			    				{
+			    			
+
+			    									turnAutoOn();
+			    									populateList(symbol);
+			    									//alert("test");
+			    				}
+			 	   				trackInput();
+							
+							//return false;
+
+					});
+					$("#add").click(function(event){
+						event.preventDefault();
+						//alert("test1");
+
+						var text=$('#track_area').val();
+						if ((text!=""))
+						{
+							entertoPending(text);
+							//alert(+" enter pending");
+					
+						}
+
+						text=$('#track_area').val();
+						//alert(text+"a");
+						//alert(trimString($("#resultMsg").text())+" "+);
+
+						if (trimString($("#resultMsg").text())!="")
+						{	
+							if ((text=="") || ($("#track_area")[0].title==text)  || (text=="$0.00") )
+							{
+							//	if ((text== ) &&()!=""))
+								{
+									saveTrans();		
+									clear();
+									$.mobile.changePage( "index.html", {
+														transition: "slideup",
+														reverse: true,
+													
+									});
+								}
+							}
+						}
+						//alert("test");
+						return false;
+					});
+
+
+				/************ save transaction *******************/
+				function saveTrans()
+				{
+					//$("#re")
+					var results=$("#resultMsg");
+					results.children('div').each(function(){
+						var insertDate=$(this).attr("class");
+						var trans=$(this).text();
+						if (trans.charAt(1)!="O")
+						{
+							var data=decompose(trans);
+
+							var now = new Date();
+							var curr_hour = now.getHours()+"";
+							var curr_min = now.getMinutes()+"";
+							var curr_sec = now.getSeconds()+"";
+							
+							if (curr_min.length == 1)
+						   	{
+						   	curr_min = "0" + curr_min;
+						   	}
+						   //	alert(curr_min.length+" "+curr_min);
+						   	if (curr_hour.length == 1)
+						   	{
+						   	curr_hour = "0" + curr_hour;
+						   	}
+						   	if (curr_sec.length == 1)
+						   	{
+						   	curr_sec = "0" + curr_sec;
+						   	}
+
+							var created_at=insertDate+" "+curr_hour+":"+curr_min+":"+curr_sec;
+						
+							data['createdDate']=created_at;
+							//searchCatsByName(db,"");
+						//	tst();
+							db.transaction(function(db)
+				 				   {
+				 				   		catFindIdName(db,data);
+				 				   		//alert("test");
+				 				  	 	//searchCatsByName(db,string);
+				 				  	
+				 				    },errorDB,function()
+				 				    		  {  	
+				 				    			//alert("success");
+				 				    		  }  
+				 				    );
+
+							
+						} 
+						//alert(childrenClass+);
+						//var =
+
+
+
+					})
+
+				}
+				function findLastSign(string)
+				{
+					for (var i=string.length-1; i>=0;i--)
+    				{
+    					if ((string.charAt(i)=="#")||(string.charAt(i)=="$")||(string.charAt(i)=="~")||(string.charAt(i)==" "))
+    				
+    					return i; 
+    				}
+    				return string.length;
+				}
+
+				function findNextSign(pos,string)
+				{
+					for (var i=pos; i<string.length;i++)
+    				{
+    					//alert(string.charAt(i));
+    					if ((string.charAt(i)==" ")||(string.charAt(i)=="#")||(string.charAt(i)=="$")||(string.charAt(i)=="~"))
+    					return i; 
+    				}
+    				return string.length;
+				}
+
+				function decompose(trans)
+				{
+
+					var data=new Object();
+					trans= trimString(trans);
+					//alert(trans);
+					var string,amount="",cat="",opt="";
+
+
+
+					var postSign= trans.indexOf("$");
+					string=trans.substring(postSign+1,trans.length);
+
+					var postNextSign= findNextSign(0,string);
+					var amount=string.substring(0,postNextSign);
+					//console.log(amount);
+
+					var postHash= trans.indexOf("#");
+					string=trans.substring(postHash+1,trans.length);
+					postNextSign= findNextSign(0,string);
+					var cat =string.substring(0,postNextSign);
+					//console.log(cat);				
+
+					var postOpt= trans.indexOf("~"),opt;
+					if (postOpt>-1)
+					{	
+						string=trans.substring(postOpt+1,trans.length);
+						postNextSign= findNextSign(0,string);
+						var opt =string.substring(0,postNextSign);
+						//console.log(opt);				
+					}
+					else 
+						opt="";
+
+
+						data['amount']=parseFloat(amount);
+						//alert(amount);
+						if (trans.charAt(0)=="-")
+							data['amount']=-data['amount'];
+						//alert(data['amount']);
+						data['cat']=cat.toLowerCase();
+						data['opt']=opt;
+
+					
+					
+					return data;
+				}
+			
+
+
+				function populateList(symbol)
+				{
+						var text= $('#track_area').val();	
+					
+						processKey(symbol,text);
+						//alert(symbol);
+
+
+    			
+				}
+
+				function clearSuggestList()
+				{
+					var sugList = $("#suggestions");
+   					sugList.html("");
+    				sugList.listview("refresh");
+
+				}
+				function processKey(symbol,text)
+				{	
+					//	alert(symbol+" "+text+"a");
+							var position = text.indexOf(" ",text.indexOf(symbol));
+							    								
+    								position = text.length;
+    								string= text.substring(text.indexOf(symbol)+1,position);
+    				//				alert(string+"a");
+    								//trimString(string);
+    								var str="";
+    							//	console.log(string);
+    					//			alert(string);
+    								if (trimString(string)=="")
+    								{
+    									setListDefault();
+    								}
+    								else
+    									searchStringInArray(trimString(string));
+    								
+    				//	return str;
+				}
+
+				function searchStringInArray (string) {
+					search_results=new Array();
+				//	search_result()
+					str="";
+					db.transaction(function(db)
+				 				   {
+				 				   		search_result=new Array();
+				 				   		//alert("test");
+				 				  	 	searchCatsByName(db,string);
+				 				  	
+				 				    },errorDB,function()
+				 				    		  {  	
+				 				    		  	str="";
+				 				    		  	var sugList = $("#suggestions");
+				 				    		  	for (var i=0, len=search_results.length;i<len;i++)
+    											{
+    												str += "<li data-icon='false' title='"+search_results[i]+"''><a style='font-size:12px'>" +search_results[i] +"</a></li>";
+    											}
+
+    											if (search_results.length==0)
+    											{
+													str += "<li data-icon='false' title='not found'><a style='font-size:12px'>not found</a></li>";
+    				    						}
+
+    											//alert(str);
+    											sugList.html(str);
+    											sugList.listview("refresh");
+				 				    		  }  
+				 				    );
+									
+				   /* for (var j=0; j<stringArray.length; j++) {
+				        if (stringArray[j].match (string)) 
+				        	{
+				        		search_results.push(stringArray[j]);
+				        		//alert(stringArray[j]);
+				        	}
+				        	
+
+				    }*/
+				    return search_results.concat();
+				}
+					/*validation*/
+				function isNumber(n) {
+				  return !isNaN(parseFloat(n)) && isFinite(n);
+				}
+				function stringValidate(string)
+				{
+
+						string=trimString(string);
+						//console.log(string);
+						var msg="";
+					//	var symbols= ["+","-","#"];
+						var text=string;
+						var posPlus= text.indexOf("+");
+						var posMinus=text.indexOf("-");
+	    				var posSign=0;
+	    				var posHash=0;
+
+	    			/*	if 	((posPlus*posMinus >0) && (posPlus+posMinus==-2))
+	    				{
+	    					msg+='Enter either "+" or "-"<br>';
+	    				}*/
+	    				//console.log(posPlus);
+	    				//console.log(posMinus);
+
+	    				if (trimString(string) == trimString($("#track_area")[0].title))
+						{ 
+							//alert(string);
+							return "Transaction can't be blank";
+						}
+						
+						posSign= text.indexOf("$");
+					
+	    				if (posSign>=0)
+	    				{
+	    					var amount= text.substring(posSign+1,text.length);
+		    				var charCut=text.length;
+		    				if (amount.indexOf(" ")>-1)
+		    				{
+		    					charCut=amount.indexOf(" ");
+		    				}
+		    				//alert(charCut);
+		    				if ((amount.indexOf("#")< charCut) && (amount.indexOf("#")>-1))			
+		   						charCut=amount.indexOf("#");
+		   					//if (charCut=-1)
+		   					if (charCut>-1)
+		    					amount=amount.substring(0,charCut);
+		    				//alert(amount+" "+charCut);
+
+
+		 					if (isNumber(amount)==false)
+		 						msg+="Amount is not a number <br>";
+		 					if (amount=="0.00")
+		 						msg+="Amount must not be zero <br>";
+	    				}
+	    				else
+	    						msg+="Enter the currency ($) <br>";		
+
+	    				posHash= text.indexOf("#");
+	    				if (posHash==-1)
+	    				{
+	    					msg+= "Enter a category starts with #<br>";
+	    				}
+	    				else
+	    					{
+		    					var category= text.substring(posHash+1,text.length);
+			    				if (category.indexOf("~")>-1)
+			    				{
+			    					category=category.substring(0,category.indexOf("~"));
+			    				}
+			 					if (category=="")
+			 						msg+= "Category cannot be blank<br>";
+		 					}	
+
+	    	
+						return msg;
+				}
+
+				function trimString (str) {
+					    str = str.replace(/^\s+/, '');
+					    for (var i = str.length - 1; i >= 0; i--) {
+					        if (/\S/.test(str.charAt(i))) {
+					            str = str.substring(0, i + 1);
+					            break;
+					        }
+					    }
+					    return str;
+					}
+
+
+				function enterNumber(last_char)
+				{
+					if (isNumber(last_char))
+					{
+						
+						trackDecimal++;
+					//	if ((trackDecimal==1) && (last_char=="0"))
+					//		trackDecimal--;
+						//alert(trackDecimal);
+						//alert(last_char);
+						var text=$("#track_area").val();
+						//alert(text);
+						$('#track_area').val("");
+		    		
+						var pos=findNextSign(1,text);
+						var afternumber="";
+					
+						if (pos!=text.length)
+							afternumber=text.substring(pos,text.length);
+						
+							
+						//alert(afternumber);
+					
+						text=text.substring(0, pos);
+						//alert(afternumber);
+					//	alert(text);
+		    			if (trackDecimal<=2)
+		    			{
+		    				//text=text.substr(0,text.length-1);
+		    				//console.log(text+" before text");
+		    				var previousLastChar = text.substr(text.length-1,1);
+		    				//console.log(text+" previousLastChar");
+		    				//alert(previousLastChar);
+		    				final_text= text.substr(0,text.length-2);
+		    				//alert(final_text);
+		    				//console.log(text+" previousLastChar");
+		    				final_text+= previousLastChar + last_char;
+		    				
+		    			
+		    			}
+		    			else
+		    			{
+		    				text=text+last_char;
+		    				//console.log(text);
+		    			//	alert(trackDecimal);
+		    				//text=text.substr(0,text.lengthgth-1);
+		    				var decimal_portion=text.substr(text.length-2,2);
+		    		//		alert(decimal_portion+" decimal");
+		    			
+
+		    				var digit=text.substr(0,text.length-2);
+		    			//	alert(digit);
+		    				if (trackDecimal==3)
+		    				{
+		    				//	alert("test");
+		    					var number=digit.substr(digit.length-1,1);
+
+		    					digit=digit.substring(0,digit.indexOf('0'))+number;
+		    			//		alert(digit);
+		    					//var number=;
+		    					//alert(number);
+		    					//number=+number;
+		    					//alert(number);
+		    				}
+		    				else
+		    					digit=digit.replace(".","");
+		    				//alert(digit+" digit");
+		    				final_text=digit+"."+decimal_portion;
+									    								
+
+		    			/*	if (last_char==0 && trackDecimal==3)
+		    				{
+		    					trackDecimal--;
+		    				}
+		    				else
+			    			{
+			    				if (trackDecimal==3)
+			    				{
+			    					final_text= text.substr(0,text.length-4);	
+			    				}
+			    				else
+			    					final_text= text.substr(0,text.length-3);
+			    				
+			    				final_text += last_char+decimal_portion; 
+		    				}*/
+		    				//$('#track_area').val("");
+		    			}
+		    			final_text+=afternumber;
+
+		    			$('#track_area').val(final_text);
+		    			text=$('#track_area').val();
+		    			//$('#track_area').setCursorPosition(pos);
+		    			pos=findNextSign(text.indexOf("$")+1,text);
+    					$('#track_area').setCursorPosition(pos);
+		    			//$('#track_area').selectRange($('#track_area').val().length,$('#track_area').val().length);
+		    			//alert("test");
+		    			//setCaretToPos($('#track_area'), $('#track_area').val().length-1);
+
+					}
+					else
+						$('#errorMsg').html("Enter Number Only");
+									
+				} 
+
+				/*******************************************/    		
+					$("#showScroller").click(function(event){
+						event.preventDefault();
+						$("#scroller").scroller("show");
+						return false;
+					});
+	
+
+			//	stringValidate(" - 100.3e rewqrqw #");
+
+				function clear()
+				{
+					turnAutoOff();
+					$("#resultMsg").html("");
+					$("#errorMsg").html("");
+					var lastdate=new Date("01/01/1001");
+					var last_word="",symbol="~";
+					var trackDecimal=0;
+					var date_pending=new Object();	
+					db.transaction(getCats,errorDB,function(){ search_results=cat; });
+				}
+
+				
+				$("#track_area").focus(function(srcc)
+			    {
+			        if ($(this).val() == $(this)[0].title)
+			        {
+			            $(this).removeClass("defaultTextActive");
+			            $(this).val("$0.00");
+			            symbol="$";
+			        }
+			       //
+			      
+
+			    });
+			    
+			    $("#track_area").blur(function()
+			    {
+			        if (($(this).val() == "")|| ($(this).val() == "$0.00"))
+			        {
+			            $(this).addClass("defaultTextActive");
+			            $(this).val($(this)[0].title);
+			        }
+			    });
+
+			    (function ($, undefined) {
+				    $.fn.getCursorPosition = function() {
+				        var el = $(this).get(0);
+				        var pos = 0;
+				        if('selectionStart' in el) {
+				            pos = el.selectionStart;
+				        } else if('selection' in document) {
+				            el.focus();
+				            var Sel = document.selection.createRange();
+				            var SelLength = document.selection.createRange().text.length;
+				            Sel.moveStart('character', -el.value.length);
+				            pos = Sel.text.length - SelLength;
+				        }
+				        return pos;
+				    }
+				})(jQuery);
+
+
+			});
+         
+			/****************Helper *******************************/
+
+			new function($) {
+			  $.fn.setCursorPosition = function(pos) {
+			    if ($(this).get(0).setSelectionRange) {
+			      $(this).get(0).setSelectionRange(pos, pos);
+			    } else if ($(this).get(0).createTextRange) {
+			      var range = $(this).get(0).createTextRange();
+			      range.collapse(true);
+			      range.moveEnd('character', pos);
+			      range.moveStart('character', pos);
+			      range.select();
+			    }
+			  }
+			}(jQuery);
+
+			/****************************************/
+        }
+			</script>
+	</head>
+	<body>
+
+		<div data-role="page" id="#index">
+
+			<div data-role="header" data-theme="b">
+				<h1>Budgit</h1> <!--data-rel="dialog"-->
+				<a href="#addPage"  data-icon="plus"  class="ui-btn-right" style="margin-top:2px" data-inline="true" data-iconpos="notext" data-transition="slideup" >Add</a>
+				
+				
+			</div>
+			<!-- /header -->
+			<div data-role="content" style="padding:0px 0px 0px 0px;">
+				<div style="height:100px; background-color:gray;color:white" class="ui-body ui-body-a">
+					<div style="padding:0px 10px 10px 10px; ">
+						<h2 style="padding:10px 0px 0px 0px;margin:0px 0px 0px 0px">Vic Bui </h2>
+					
+
+
+					<!--<div class="ui-grid-a" style="width:200px">
+							<div class=" ui-block-a">
+								<div style="height:30px;width:55px; background-color:blue; text-align:center;" class="ui-body  badgeRed">
+								$40
+									<div style="font-size:11px;padding-top:0px;margin-top:0px;margin-left:">Remaining</div>
+								</div>
+							</div>
+							<div class="ui-block-b">
+								
+								<div style="height:30px;width:55px; background-color:blue; text-align:center;" class="ui-body ui-corner-all badgeGreen">
+								$100
+									<div style="font-size:11px;padding-top:0px;margin-top:0px;margin-left:0px">Balance</div>
+								</div>
+							</div>
+						</div>
+					-->
+						<div style=" margin-top:-10px; margin-left:-15px;;padding-bottom:0px;">
+							<div id="barChart" style="height:80px;width:248px;z-index:0">
+							</div>
+						  <div class="ui-grid-a" style="width:200px;position:absolute;z-index:10;top:50px;left:15px;font-weight: bold;">
+							<div class="ui-block-a">
+								<div style="height:30px;width:55px;text-align:center;" class="ui-body">
+								$40
+									<div style="font-size:11px;padding-top:0px;margin-top:0px;margin-left:">Left</div>
+								</div>
+							</div>
+							<div class="ui-block-b">
+								
+								<div style="height:30px;width:55px;text-align:center;" class="ui-body ui-corner-all">
+								$100
+									<div style="font-size:11px;padding-top:0px;margin-top:0px;margin-left:0px">Spent</div>
+								</div>
+							</div>
+						  </div>
+	
+						</div>
+
+					</div>
+				</div>
+
+
+			</div>
+			<!-- /content -->
+
+		</div>
+		<!-- /page -->
+
+
+		<!--page track -->
+
+		<div data-role="page"  class="track-dialog"  id="addPage">
+
+			<div data-role="header" data-theme="b" style="height:30px;">
+
+				<a data-icon="delete" data-inline="true"  data-mini="true" data-iconpos="notext" data-rel="back"  style="margin-top:-3px">Delete</a>
+				<h1 style="margin-top:4px">Budgit</h1>
+				<a id="add" data-icon="plus"  data-inline="true"  data-mini="true" class="ui-btn-right" data-iconpos="notext" style="margin-top:-3px">Post</a>
+				
+				
+			</div>
+			<!-- /header -->
+
+			<div data-role="content" style="padding-bottom:5px; margin-bottom:0px">
+				<input type="text" id="track_area" class="defaultTextActive" title="E.g: $10 #saving" value="E.g: $10 #saving"></input>
+			
+				<div style="font-size:11px;color:dark-gray; padding-bottom:0px;" id="instructionTxt">
+					<div class="navlink ui-grid-b" data-role='none'>
+							<div class="ui-block-a"  style="text-align: left;">
+									Eg:$10 #saving <br>
+							</div>
+
+							<div class="ui-block-b scrollable" id="resultMsg" style="text-align: left;height:50px"></div>
+							
+							<div class="ui-block-c scrollable" id="errorMsg"  style="color:red;text-align:left;height:50px">
+									
+							</div>
+					</div>
+				</div>
+				<ul id="suggestions" data-role="listview" data-inset="true" class="scrollable" style="display:none"> </ul>
+			</div>
+			<div style="background-color:lightgray; height:25px;" >
+				<div class="navlink ui-grid-b" data-role='none'>
+						<div class="ui-block-a">	
+								<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" id="radioBtns">
+								     	<input type="radio" name="transType" id="radioIncome" value="+" style="font-size:10px; height:0px" />
+								     	<label for="radioIncome" class="radiobtn" >Income</label>
+
+
+								     	<input type="radio" name="transType" id="radioExpense" value="-" checked="true" style="font-size:10px; height:0px"/>
+								     	<label for="radioExpense" class="radiobtn">Expense</label>
+
+								
+								</fieldset>
+									<!-- <div class="ui-block-a">	
+										<a class="links" data-role='none' name="+" href="#">+ </a></div>
+									<div class="ui-block-b">	
+										<a class="links" data-role='none' name="-" href="#">- </a>
+									</div> -->
+
+							
+						</div>
+						<div class="ui-block-b"><a class="links" data-role='none' name="#" href="#"># </a>  </div>
+						<div class="ui-block-c">
+							<div class="ui-grid-b">
+								<div class="ui-block-a"  style="text-align: center;">
+									<a class="links" data-role='none' name="~"  href="#">~ </a>
+								</div>
+								<div class="navlink  ui-block-b" style="text-align: right; margin-top:3px">
+									<input id="scroller" name="scroller" style="display:none;" />
+									<a href="#" id="dateLnk" style="font-size:16px;color: gray;" >
+										12-20-32
+									</a>
+								</div>
+							</div>
+						
+						</div>
+						
+						 
+				</div> 
+			</div>			
+		
+			<!-- /content -->
+
+
+
+
+		</div>
+
+	<script type="text/javascript" src="js/database.js"></script>
+	<script src="js/mobiscroll.js" type="text/javascript"></script>
+	<script src="js/jqmcharts/jquery.jqplot.min.js" type="text/javascript"></script>
+	<script src="js/jqmcharts/jqplot.pointLabels.min.js" type="text/javascript"></script>
+	<script src="js/jqmcharts/jqplot.barRenderer.min.js" type="text/javascript"></script>
+	<script src="js/jqmcharts/jqplot.categoryAxisRenderer.min.js" type="text/javascript"></script>
+
+	</body>
+</html>

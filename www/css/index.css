@@ -1,0 +1,157 @@
+/* dialog */
+.jqplot-grid-canvas {
+    display: none;
+}
+.jqplot-yaxis-tick{
+	display: none;	
+}
+
+.jqplot-title{
+	display: none
+}
+.jqplot-point-label{
+	color: white;
+	display: none;
+}
+.jqplot-series-canvas{
+	top:0px;
+}
+.ui-dialog.track-dialog .ui-dialog-contain 
+{ 
+	margin-top: 10%; 
+}
+.ui-dialog .ui-content,.ui-dialog .ui-content
+{
+	padding-bottom: 0px;
+	
+} 
+
+.ui-controlgroup-controls{
+	padding-top: 0px;
+	margin-top:  -6px;
+
+}
+.ui-btn.radiobtn {
+    text-align: left;
+    height: 18px;
+    width: 100%;
+    padding-top: 0px;
+
+ } 
+.radiobtn .ui-btn-inner{
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+.radiobtn .ui-btn-inner{
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin-top:  -2px;
+
+}
+
+.ui-btn-text{
+  font-size: 11px;
+    padding-top: 0px;
+
+}
+
+
+/*track input */
+#track_area
+{
+	margin-top:0px;
+	height:35px; 
+	max-height: 70px;
+	padding-bottom: 0px; 
+	white-space: pre-wrap; 
+}
+#function_bar{
+	-webkit-border-radius: 0px !important;
+ 	-moz-border-radius: 0px !important;
+ 	border-radius: 0px !important;
+ 	height: 25px;
+ 	margin-top: -20px;
+ 	margin-left:0px;
+
+} 
+#suggestions li{
+	font-size: 10px;
+}
+.scrollable {
+	padding-top: 0px;
+	max-height: 120px;
+	overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+}
+
+            /* iOS specific fix, don't use it on Android devices */
+.scrollable > * {
+            -webkit-transform: translateZ(0px);
+}
+/*nav link */
+.navlink {
+	text-align: center;
+	text-decoration: none;
+	color: gray;
+}
+.navlink a:link{
+	color: gray;
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 20px;
+	vertical-align: center;
+}
+
+.navlink a:active {
+	color: gray;
+	text-decoration: none;
+	font-weight: bold;
+}
+.navlink a:visited{
+	color: gray;
+	text-decoration: none;
+}
+.navlink a:hover {
+	text-decoration: none;
+	color: black;
+
+}
+
+#resultMsg a:link{
+	color: gray;
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 11px;
+	vertical-align: center;
+}
+.defaultText { }
+.defaultTextActive { color: #a1a1a1; font-style: italic; }
+
+.badgeGreen {
+border: 1px solid #56A00E;
+background: #74B042;
+color: white;
+font-weight: bold;
+text-shadow: 0 1px 1px #335413;
+background-image: -webkit-gradient(linear, left top, left bottom, from(#74B042), to(#56A00E));
+background-image: -webkit-linear-gradient(#74B042, #56A00E);
+background-image: -moz-linear-gradient(#74B042, #56A00E);
+background-image: -ms-linear-gradient(#74B042, #56A00E);
+background-image: -o-linear-gradient(#74B042, #56A00E);
+background-image: linear-gradient(#74B042, #56A00E);
+}
+/*"", "#df8321",*/
+.badgeRed {
+border: 1px solid #bc4427;
+background: #bc4427;
+color: white;
+font-weight: bold;
+background-image: -webkit-gradient(linear,left top,left bottom,from( #bc4427 ),to( #bc4427 ));
+background-image: -webkit-linear-gradient( #bc4427,#bc4427 );
+background-image: -moz-linear-gradient( #bc4427,#bc4427 );
+background-image: -ms-linear-gradient( #bc4427,#bc4427 );
+background-image: -o-linear-gradient( #bc4427,#bc4427 );
+background-image: linear-gradient( #bc4427,#bc4427 );
+}
