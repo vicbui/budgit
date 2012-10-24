@@ -50,9 +50,11 @@
 					
 				});
 
-				$(document).live('pageinit',function(event){					
+				$(document).ready(function(event){					
 
-						showChart();
+						showChart("Remaining", "#993333","#339900",30,70);
+						//showChart("Spent","", "#ff3333",90,100);
+
 						db= openDB();		
 						db.transaction(populateDB, errorDB, successDB);
 						db.transaction(getCats,errorDB,function(){
@@ -522,9 +524,13 @@
 
 /*****************************charting*****************************************************/
 
-						function showChart()
+						function showChart(id,color1,color2,value1,value2)
 						{
-							  $.jqplot('barChart', [[40],[100]], {
+							var name="barChart"+id;
+							var idw2=name+"r";
+							var idw=name+"s";
+							//alert(idw);
+						  var plot= $.jqplot(name, [[value1],[value2]], {
 					  	  stackSeries: true,
 							seriesDefaults: {
 						      renderer: $.jqplot.BarRenderer,
@@ -534,24 +540,27 @@
 						          highlightMouseOver: false,
 							        highlightMouseDown: false,
 							        highlightColor: null,
+							         barWidth: 50,
+
 
 						      },
 						      pointLabels: { 
-						        show: true,
+						        show: false,
 						      },
 						      shadow: false,
 						    },
 						    axes: {
 						      xaxis: {
 						        //renderer: $.jqplot.CategoryAxisRenderer,
-						       //
+						        ticks:[0,100],
 						        tickOptions: {
 						          showGridline: false,
 						          showMark: false,
 						          //fontFamily: 'DosisBold',
 						          textColor: '#ffffff',
 						          fontSize: 'larger',
-						          showLabel:false
+						          showLabel:false,
+
 						        },
 						      },
 						      yaxis: {
@@ -568,7 +577,7 @@
 						      },
 
 						    },
-						    seriesColors: ["#bc4427", "#74B042", "#949629", "#5e8c41", "#739c9b", "#3483b3"],
+						    seriesColors: [color1,color2],
 						    grid: {
 						      background: '#1d1d1d',
 						      drawGridLines: false,
@@ -578,9 +587,27 @@
 
 						    highlighter: { show: false },
 
-						  });
-
+						  });	
 							
+							var w = parseInt($(".jqplot-yaxis").width(), 10) + parseInt($("#"+name).width(), 10);
+							var h = parseInt($(".jqplot-title").height(), 10) + parseInt($(".jqplot-xaxis").height(), 10) + parseInt($("#"+name).height(), 10);
+
+							$("#"+name).width(w).height(h);								
+							plot.replot({clear: true, resetAxes:true});
+
+
+							//$("#barChart").remove('barChartW');
+							$("#" + idw).remove();
+							$("#" + idw2).remove();
+							
+						/*	var pixel="-5px";
+							if (id=="Spent") 
+								{
+									//alert(pixel);
+									pixel="5px";
+								}*/
+							
+
 						}
 
 
@@ -917,7 +944,7 @@
 									clear();
 									$.mobile.changePage( "index.html", {
 														transition: "slideup",
-														reverse: true,
+												reverse: true,
 													
 									});
 								}
@@ -1347,10 +1374,12 @@
 					turnAutoOff();
 					$("#resultMsg").html("");
 					$("#errorMsg").html("");
-					var lastdate=new Date("01/01/1001");
-					var last_word="",symbol="~";
-					var trackDecimal=0;
-					var date_pending=new Object();	
+					lastdate=new Date("01/01/1001");
+					last_word="",
+					symbol="$";
+					trackDecimal=0;
+					date_pending=new Object();	
+
 					db.transaction(getCats,errorDB,function(){ search_results=cat; });
 				}
 
@@ -1421,17 +1450,21 @@
 
 		<div data-role="page" id="#index">
 
-			<div data-role="header" data-theme="b">
+			<div data-role="header" data-theme="b" style="height:30px;">
 				<h1>Budgit</h1> <!--data-rel="dialog"-->
-				<a href="#addPage"  data-icon="plus"  class="ui-btn-right" style="margin-top:2px" data-inline="true" data-iconpos="notext" data-transition="slideup" >Add</a>
+				<a href="#addPage"  data-icon="plus"  class="ui-btn-right" style="margin-top:-3px" data-inline="true" data-iconpos="notext" data-transition="slideup" >Add</a>
 				
 				
 			</div>
 			<!-- /header -->
 			<div data-role="content" style="padding:0px 0px 0px 0px;">
-				<div style="height:100px; background-color:gray;color:white" class="ui-body ui-body-a">
-					<div style="padding:0px 10px 10px 10px; ">
-						<h2 style="padding:10px 0px 0px 0px;margin:0px 0px 0px 0px">Vic Bui </h2>
+				<div style="height:80px; background-color:gray;color:white;padding:5px 0px 5px 10px;" class="ui-body ui-body-a">
+					<div style="float:left">
+						<img src='img/vicbui.jpg' width='70px' height='70px' style="padding-top:5px "/>
+					</div>
+
+					<div style="padding:5px 0px 0px 10px;float:left;">
+						<h4 style="padding:0px 0px 0px 0px;margin:0px 0px 0px 0px">Vic Bui </h4>
 					
 
 
@@ -1451,10 +1484,41 @@
 							</div>
 						</div>
 					-->
-						<div style=" margin-top:-10px; margin-left:-15px;;padding-bottom:0px;">
-							<div id="barChart" style="height:80px;width:248px;z-index:0">
+						<div style="padding-top:5px;margin-left:0px">
+
+								<div id="barChartSpentw" style="font-size:18px;color:white;font-weight:bold;z-index:100;float:left;width:40px;text-align:center">$900
+										<div style="font-size:11px;font-weight:bold;">Spent</div>
+								</div>
+								<div style="float:left;width:140px">
+									<div id="barChartRemaining" style="height:45px;width:140px;z-index:0;margin-left:-10px;margin-top:-10px;float:left">
+										</div>
+								
+										
+								</div>
+
+								<div id="barChartLeftw" style="margin-top:0px;font-size:18px;color:white;font-weight:bold;z-index:100;float:left;width:40px;text-align:center">$100
+										<div style="font-size:11px;padding-top:0px;margin-top:0px;margin-left:0px;font-weight:bold;">Left</div>
+								</div>
+
+							
+						</div>
+
+					<!--<div class="ui-grid-a" style="margin-left:-15px;width:200px">
+							<div style="margin-top:-10px; margin-left:0px;padding-bottom:0px">
+								<div id="barChartSpent" style="height:80px;width:100px;z-index:0">
+									<div id="barChartSpentw" style="position:absolute;top:20px;left:30px;font-size:20px;color:white;font-weight:bold;z-index:100">$20
+										<div style="font-size:11px;padding-top:5px;margin-top:0px;margin-left:0px;font-weight:bold;">Spent</div>
+									</div>
+								</div>	
 							</div>
-						  <div class="ui-grid-a" style="width:200px;position:absolute;z-index:10;top:50px;left:15px;font-weight: bold;">
+
+							 
+						
+						<!--<div class="ui-block-b">
+						
+						</div>
+					</div>-->
+						<!-- <div class="ui-grid-a" style="width:200px;position:absolute;z-index:10;top:50px;left:15px;font-weight: bold;">
 							<div class="ui-block-a">
 								<div style="height:30px;width:55px;text-align:center;" class="ui-body">
 								$40
@@ -1469,13 +1533,14 @@
 								</div>
 							</div>
 						  </div>
+						 -->
 	
-						</div>
 
 					</div>
 				</div>
 
 
+									
 			</div>
 			<!-- /content -->
 
@@ -1497,18 +1562,19 @@
 			</div>
 			<!-- /header -->
 
-			<div data-role="content" style="padding-bottom:5px; margin-bottom:0px">
+			<div data-role="content" style="padding-bottom:0px; margin-bottom:0px">
+				<div style="font-size:11px;color:dark-gray; padding:0px 0px 4px 0px;">
+						Enter: $10 #saving or $10 #saving ~(optional text) 
+				</div>
 				<input type="text" id="track_area" class="defaultTextActive" title="E.g: $10 #saving" value="E.g: $10 #saving"></input>
 			
 				<div style="font-size:11px;color:dark-gray; padding-bottom:0px;" id="instructionTxt">
-					<div class="navlink ui-grid-b" data-role='none'>
-							<div class="ui-block-a"  style="text-align: left;">
-									Eg:$10 #saving <br>
-							</div>
-
-							<div class="ui-block-b scrollable" id="resultMsg" style="text-align: left;height:50px"></div>
+					<div class="navlink ui-grid-a" data-role='none'>
 							
-							<div class="ui-block-c scrollable" id="errorMsg"  style="color:red;text-align:left;height:50px">
+
+							<div class="ui-block-a scrollable" id="resultMsg" style="text-align: left;height:50px"></div>
+							
+							<div class="ui-block-b scrollable" id="errorMsg"  style="color:red;text-align:left;height:50px">
 									
 							</div>
 					</div>
@@ -1516,9 +1582,23 @@
 				<ul id="suggestions" data-role="listview" data-inset="true" class="scrollable" style="display:none"> </ul>
 			</div>
 			<div style="background-color:lightgray; height:25px;" >
-				<div class="navlink ui-grid-b" data-role='none'>
-						<div class="ui-block-a">	
-								<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" id="radioBtns">
+				<div class="navlink" data-role='none'>
+						<div style="width:100%;float:left">
+								
+								<a class="links" data-role='none' name="#" href="#" style="float:left;width:20%;"># </a> 
+								
+								<a class="links" data-role='none' name="~"  href="#" style="float:left;width:5%;">~ </a>
+								
+
+								<div class="navlink" style="text-align: right; margin-top:3px;padding-right:10px;float:left;width:30%;">
+									<input id="scroller" name="scroller" style="display:none;" />
+									<a href="#" id="dateLnk" style="font-size:16px;color: gray;" >
+										12-20-32
+									</a>
+								</div>
+
+
+								<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" id="radioBtns" style="float:left;width:40%">
 								     	<input type="radio" name="transType" id="radioIncome" value="+" style="font-size:10px; height:0px" />
 								     	<label for="radioIncome" class="radiobtn" >Income</label>
 
@@ -1527,7 +1607,8 @@
 								     	<label for="radioExpense" class="radiobtn">Expense</label>
 
 								
-								</fieldset>
+								</fieldset>	
+						
 									<!-- <div class="ui-block-a">	
 										<a class="links" data-role='none' name="+" href="#">+ </a></div>
 									<div class="ui-block-b">	
@@ -1536,20 +1617,10 @@
 
 							
 						</div>
-						<div class="ui-block-b"><a class="links" data-role='none' name="#" href="#"># </a>  </div>
-						<div class="ui-block-c">
-							<div class="ui-grid-b">
-								<div class="ui-block-a"  style="text-align: center;">
-									<a class="links" data-role='none' name="~"  href="#">~ </a>
-								</div>
-								<div class="navlink  ui-block-b" style="text-align: right; margin-top:3px">
-									<input id="scroller" name="scroller" style="display:none;" />
-									<a href="#" id="dateLnk" style="font-size:16px;color: gray;" >
-										12-20-32
-									</a>
-								</div>
-							</div>
-						
+						<!--<div class="ui-block-b">
+							<div class="ui-grid-a">
+														</div>
+						-->
 						</div>
 						
 						 

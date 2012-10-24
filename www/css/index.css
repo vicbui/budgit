@@ -1,4 +1,9 @@
 /* dialog */
+.jqplot-series-canvas{
+ /*display:none*/
+ width: 125px;
+ height: 45px;
+}
 .jqplot-grid-canvas {
     display: none;
 }
