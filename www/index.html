@@ -8,7 +8,6 @@
 			<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>	
 			<script type="text/javascript" src="cordova-2.1.0.js"></script>
 			<script type="text/javascript" src="js/index.js"></script>
-			
 
 			<link rel="stylesheet" href="css/index.css" type="text/css" />
 			<link href="css/jquery.jqplot.css" rel="stylesheet" type="text/css" />
@@ -23,9 +22,9 @@
 				var search_results=new Array();
 				var cat=new Array();
 				var str="";
-				var search_results=new Array();
+				var search_results=new Object();
 				
-				var lastdate=new Date("01/01/1001");
+				var lastdate=new Date("1001/01/01");
 				var db ;
 				var cats=new Array();
 				var timer;
@@ -35,6 +34,7 @@
 				var trackDecimal=0;
 				var date_pending=new Object();
 				var afternumber;
+				var plot; 
 				
          // document.addEventListener("deviceready", onDeviceReady, false);
     
@@ -50,11 +50,12 @@
 					
 				});
 
-				$(document).ready(function(event){					
 
-						showChart("Remaining", "#993333","#339900",30,70);
-						//showChart("Spent","", "#ff3333",90,100);
 
+				$(document).ready(function(event){		
+			
+							
+									
 						db= openDB();		
 						db.transaction(populateDB, errorDB, successDB);
 						db.transaction(getCats,errorDB,function(){
@@ -67,8 +68,147 @@
 																 //alert("Test");
 																// $("#suggestions").show();
 																});	
+						var value={spent:0,left:0};
+						/*db.transaction(function(db){
+											var spent=0,left=0;
+											getTotalBalance(db,value);
+										},errorDB,function(){ 
+											//alert(value.spent+" "+value.left);
+											showChart("Balance", "#993333","#339900",value.spent,value.left);
+										}
+									 );
+						*/
+						loadAllDashboard();
+							
+							
+
 						//$('#errorMsg').scrollview();
 						/*date picker */
+						$(document).bind('pagechange',function(){
+
+
+								if($.mobile.activePage.attr("id") == "cat"){
+									//alert("test");
+									
+		
+
+									var data=JSON.parse(window.localStorage.getItem("cat"));
+									window.localStorage.removeItem("cat");
+									window.localStorage.setItem("cat", "");
+
+
+									var total=$("#total");
+									total.barChart();
+									total.data('barChart').showChart('total','#993333', '#339900', data.spent,data.left);
+
+									$("#dateLeft").text(daysInMonth());	
+									$("#catTitle").text(data.catName);
+									$("#catLbl").text("#"+data.catName);
+									$("#cat_track_area").inputText();
+									$("#cat_track_area").data('inputText').init();
+                                     
+									var chartValue = [50,50];
+									var pieChart=$("#pieChart");
+									pieChart.barChart();
+									pieChart.data('barChart').pieChart('pieChart','#993333', '#339900',chartValue);
+									
+
+									
+									var transactions=new Object();
+									transactions.data= new Array();
+									
+									db.transaction(function(db)
+								 				   {
+								 				   		get_trans_last_7_days_by_cat_name(db,data.catName,transactions);
+								 				    },errorDB,function()
+								 				    		  { 
+								 				    		  	var chartValue=new Array();
+								 				    		  	var seven_dates=new Array();
+								 				    		  	seven_dates=process_seven_days(transactions.data);
+								 				    		  	//alert(seven_dates); 
+								 				    		  	for (var i in seven_dates)
+															 	{
+															 		//alert(seven_dates[i]);
+															 		chartValue.push(seven_dates[i] * -1);
+															 		//console.log(i+" "+final_date[i]);
+															 	}
+															 	for (var i=1; i<chartValue.length;i++)
+															 	{
+															 		console.log(chartValue[i]);
+															 	}
+															 	//chartValue=[0,0,0,0,0,7,10];	
+																var lineChart=$("#lineChart");
+																lineChart.barChart();
+																lineChart.data('barChart').lineChart('lineChart','#5E87B0',chartValue);
+								 				    		  	//alert("success");
+								 				    		  	//console.log(transactions.results.length);
+								 				    		  //	alert(transactions.data[0].amount);
+								 				    		  });	
+
+									/*db.transaction(function(db)
+								 				   {
+								 				   		get_trans_last_7_days_by_cat_name(db,data.catName,transactions);
+								 				    },errorDB,function()
+								 				    		  { 
+								 				    		  	var chartValue=new Array();
+								 				    		  	var seven_dates=new Array();
+								 				    		  	seven_dates=process_seven_days(transactions.data);
+								 				    		  	//alert(seven_dates); 
+								 				    		  	for (var i in seven_dates)
+															 	{
+															 		//alert(seven_dates[i]);
+															 		chartValue.push(seven_dates[i] * -1);
+															 		//console.log(i+" "+final_date[i]);
+															 	}
+															 	for (var i=1; i<chartValue.length;i++)
+															 	{
+															 		console.log(chartValue[i]);
+															 	}
+															 	//chartValue=[0,0,0,0,0,7,10];	
+																var lineChart=$("#lineChart");
+																lineChart.barChart();
+																lineChart.data('barChart').lineChart('lineChart','#5E87B0',chartValue);
+								 				    		  	//alert("success");
+								 				    		  	//console.log(transactions.results.length);
+								 				    		  //	alert(transactions.data[0].amount);
+								 				    		  });	*/
+
+
+
+								}
+								else 
+									{
+										loadAllDashboard();
+									}
+							})	
+  
+							 $(".loadmore").click(function(event){
+
+							           //	alert("test");
+							           	var str='<div data-role="collapsible">'+
+											'<h2 data-icon="false">'+
+												'<span style="float:left">$200</span>'+
+												'<span style="float:right" class="ui-li-count"> (2) </span>'+
+												'<span style="float:right">23 OCT 2012</span>'+
+												
+											'</h2>'+
+											'<ul data-role="listview" class="list2">'+
+												'<li data-icon="false">$30</li>'+
+											    '<li data-icon="false">$30</li>'+
+											
+											'</ul>'+
+										'</div>';	
+
+
+											//alert(str);
+							           		$("#list").append(str).collapsibleset("refresh");
+											//$("#list2").listview('refresh');
+											//alert($("#list2").html());
+											$(".list2").listview();
+											//alert("test");
+							           		$(".list2").listview('refresh',true);
+							           })
+
 						$("#scroller").scroller({ 
 													display :'modal',
 													preset : 'date',
@@ -105,10 +245,7 @@
 					 		return string.length;
 					 	}
 
-					 	$("#track_area").bind("taphold",function(){
-					 	//	alert("test");
-					 	})
-
+					
 						$("#track_area").bind("click taphold",function() {
 							//alert($("#track_area").getCursorPosition());
 					        
@@ -261,7 +398,9 @@
     						
 	    						 if (e.keyCode == 13)
 	    						 {
-	    						 	entertoPending(text);
+	    						 	enterToSave();
+	    						 	//switchOffTextScreen();
+	    						 	//entertoPending(text);
 	    						 }
 
     						 	if (symbol=="#") 
@@ -314,6 +453,13 @@
     					})
 
     					$('#track_area').keydown(function(e){
+    						if ($("#track_area").is(":focus")) {
+								if ($("#profile").is(':visible'))
+								{
+									switchOnTextScreen();
+								}
+							}
+
     						//e.preventDefault();
 
 
@@ -527,10 +673,15 @@
 						function showChart(id,color1,color2,value1,value2)
 						{
 							var name="barChart"+id;
-							var idw2=name+"r";
-							var idw=name+"s";
+							console.log(name);
+							var idw2=name+"L";
+							var idw=name+"S";
+							var total=value1+value2;
+							var perc1=Math.round(Number((value1/total)*100));
+							var perc2=Math.round(Number((value2/total)*100));
 							//alert(idw);
-						  var plot= $.jqplot(name, [[value1],[value2]], {
+							$("#"+name).html("");
+						  $.jqplot(name, [[perc1],[perc2]], {
 					  	  stackSeries: true,
 							seriesDefaults: {
 						      renderer: $.jqplot.BarRenderer,
@@ -587,28 +738,38 @@
 
 						    highlighter: { show: false },
 
-						  });	
+						  }).replot({clear: true, resetAxes:true});	
 							
 							var w = parseInt($(".jqplot-yaxis").width(), 10) + parseInt($("#"+name).width(), 10);
 							var h = parseInt($(".jqplot-title").height(), 10) + parseInt($(".jqplot-xaxis").height(), 10) + parseInt($("#"+name).height(), 10);
 
 							$("#"+name).width(w).height(h);								
-							plot.replot({clear: true, resetAxes:true});
+						//	plot;
 
 
 							//$("#barChart").remove('barChartW');
-							$("#" + idw).remove();
-							$("#" + idw2).remove();
+							$("#" + idw).text("$"+abbrNum(value1,2));
+							$("#" + idw2).text("$"+abbrNum(value2,2));
+					
+							var canvas= $("#"+name).find('.jqplot-event-canvas');
+							canvas.css("cursor","pointer");
+									//alert(canvas.html());
+									canvas.click(function(){
+										//alert();
+									})
 							
-						/*	var pixel="-5px";
-							if (id=="Spent") 
+							var barChartName=$("#"+id).find('.barChartName');
+							barChartName.css("cursor","pointer");
+							
+							//alert(barChartName.html());
+								barChartName.click(function()
 								{
-									//alert(pixel);
-									pixel="5px";
-								}*/
-							
+									//alert("test");
+								})
 
-						}
+
+							}
+
 
 
 /*****************************charting*****************************************************/
@@ -653,7 +814,7 @@
     						   else
     						   {
     						   	 var daten=$("#scroller").scroller('getDate');
-    						   	 var date=jQuery.scroller.formatDate('dd-mm-yy',daten);
+    						   	 var date=jQuery.scroller.formatDate('yy-mm-dd',daten);
     						   	 	
     						     if (lastdate.getTime()!=daten.getTime())
     						   	 {
@@ -876,18 +1037,33 @@
 							event.preventDefault(); 
 						
 							var text= $('#track_area').val();
+							//alert(text+" "+$('#track_area')[0].title);
 							var lastSymbol="";
 
 							 if ($('#track_area').val() == $('#track_area')[0].title)
 			        		 {
 			            		$('#track_area').removeClass("defaultTextActive");
-			            		$('#track_area').val("");
+			            		$('#track_area').val("$0.00");
+			            		text="$0.00";
 			        		 }
+
+			        		if ($('#track_area').val().indexOf($(this).attr("name"))>-1)
+					 			{
+					 				$("#errorMsg").text("You can't enter "+$(this).attr("name")+" more than once");
+					 				event.preventDefault();
+					 				return;
+					 			}
+ 	
+
 
 
 			        		symbols[symbol]=0;
 			        		lastSymbol=symbol;
 			       			symbol=$(this).attr("name");
+
+
+			       			//if text.index
+
 					 		symbols[symbol]=text.length-1;
 					
 						//	alert(symbol);
@@ -921,7 +1097,22 @@
 					$("#add").click(function(event){
 						event.preventDefault();
 						//alert("test1");
+						enterToSave();
+						//alert("test");
+						return false;
+					});
 
+					$("#deleteBtn").click(function(event){
+						event.preventDefault();
+						//alert("test1");
+						//enterToSave();
+						switchOffTextScreen();
+						//alert("test");
+						return false;
+					});
+					function enterToSave()
+					{
+						
 						var text=$('#track_area').val();
 						if ((text!=""))
 						{
@@ -942,17 +1133,17 @@
 								{
 									saveTrans();		
 									clear();
-									$.mobile.changePage( "index.html", {
+									switchOffTextScreen();
+
+									/*$.mobile.changePage( "index.html", {
 														transition: "slideup",
 												reverse: true,
 													
-									});
+									});*/
 								}
 							}
-						}
-						//alert("test");
-						return false;
-					});
+						}						
+					}
 
 
 				/************ save transaction *******************/
@@ -960,6 +1151,7 @@
 				{
 					//$("#re")
 					var results=$("#resultMsg");
+					//console.log(results);
 					results.children('div').each(function(){
 						var insertDate=$(this).attr("class");
 						var trans=$(this).text();
@@ -1000,6 +1192,9 @@
 				 				    },errorDB,function()
 				 				    		  {  	
 				 				    			//alert("success");
+				 				    		  	//refreshDashboard();
+				 				    		  	loadAllDashboard();
+				 				    		  	//updateChart(data['cat']);
 				 				    		  }  
 				 				    );
 
@@ -1013,6 +1208,53 @@
 					})
 
 				}
+				function updateChart(name)
+				{
+					var value;
+					db.transaction(function(db,value){
+										get_cat_balance_by_name(db,name,value);
+									},errorDB,function(){
+										showChart(name,"#993333","#339900",value.spent,value.left);
+									})
+				}
+				function loadAllDashboard()
+				{
+					var cats=new Array();
+					db.transaction(function(db){
+											var spent=0,left=0;
+											getTotalBalance(db,value,cats);
+										//	get_cats_balance(db,cats);
+
+										},errorDB,function(){ 
+											//alert(value.spent+" "+value.left);
+											showChart("balance", "#993333","#339900",value.spent,value.left);
+											//alert(cats.length);
+											$("#allcats").html("");
+											for (var i=0;i<cats.length;i++)
+											{
+												var cat=cats[i];
+												//alert("test");
+												$("#allcats").append("<div id='"+cat.name+"'></div><div style='clear:both'></div>");
+												//alert(cat.name);
+												$("#"+cat.name).barChart(
+													{
+													'id'         : cat.name,
+								      				'color1'	 : '#993333',
+								      				'color2'	 : '#339900',
+								      				'value1'	 : cat.spent,
+								      				'value2'	 : cat.left
+													}
+												);
+												$("#"+cat.name).data('barChart').init();
+												//var cat=
+											//	showChart(cat.name, "#993333","#339900",cat.spent,cat.left);
+											}
+										}
+									 );
+							/*showChart("Food", "#993333","#339900",10,20);
+							showChart("Groceries", "#993333","#339900",130,80);*/
+				}
+
 				function findLastSign(string)
 				{
 					for (var i=string.length-1; i>=0;i--)
@@ -1062,8 +1304,8 @@
 					if (postOpt>-1)
 					{	
 						string=trans.substring(postOpt+1,trans.length);
-						postNextSign= findNextSign(0,string);
-						var opt =string.substring(0,postNextSign);
+						//postNextSign= this.findNextSign(0,string);
+						var opt =string;
 						//console.log(opt);				
 					}
 					else 
@@ -1126,25 +1368,27 @@
 				}
 
 				function searchStringInArray (string) {
-					search_results=new Array();
+					search_results=new Object();
+			 		search_results.result=new Array();
 				//	search_result()
 					str="";
 					db.transaction(function(db)
 				 				   {
-				 				   		search_result=new Array();
+				 				   		search_results=new Object();
+			 							search_results.result=new Array();
 				 				   		//alert("test");
-				 				  	 	searchCatsByName(db,string);
+				 				  	 	searchCatsByName(db,string,search_results);
 				 				  	
 				 				    },errorDB,function()
 				 				    		  {  	
 				 				    		  	str="";
 				 				    		  	var sugList = $("#suggestions");
-				 				    		  	for (var i=0, len=search_results.length;i<len;i++)
+				 				    		  	for (var i=0, len=search_results.result.length;i<len;i++)
     											{
-    												str += "<li data-icon='false' title='"+search_results[i]+"''><a style='font-size:12px'>" +search_results[i] +"</a></li>";
+    												str += "<li data-icon='false' title='"+search_results.result[i]+"''><a style='font-size:12px'>" +search_results.result[i] +"</a></li>";
     											}
 
-    											if (search_results.length==0)
+    											if (search_results.result.length==0)
     											{
 													str += "<li data-icon='false' title='not found'><a style='font-size:12px'>not found</a></li>";
     				    						}
@@ -1383,6 +1627,36 @@
 					db.transaction(getCats,errorDB,function(){ search_results=cat; });
 				}
 
+				function switchOnTextScreen()
+				{
+					//disable top
+					$("#profile").hide();
+					//enable nav link
+					$("#functionBar").show();
+					$("#todayTxt").text("E.g: $10 #food or $20 #groceries ~optional text");
+					$.mobile.silentScroll(0);
+					$("#add").show();
+					$("#deleteBtn").show();
+					//add button
+				} 
+				function switchOffTextScreen()
+				{
+					//after save data 
+					//disable nav link
+					//enable title 
+					//refresh chart
+					$("#profile").show();
+					//enable nav link
+					$("#functionBar").hide();
+					$("#todayTxt").text("Today's transaction");
+					$("#add").hide();
+					$("#deleteBtn").hide();
+			
+					//return
+					//hide button
+
+				}
+
 				
 				$("#track_area").focus(function(srcc)
 			    {
@@ -1392,6 +1666,8 @@
 			            $(this).val("$0.00");
 			            symbol="$";
 			        }
+			        switchOnTextScreen();
+			     	//$("#track_area").focus();   
 			       //
 			      
 
@@ -1442,67 +1718,177 @@
 			  }
 			}(jQuery);
 
+			function abbrNum(number, decPlaces) {
+			    // 2 decimal places => 100, 3 => 1000, etc
+			    decPlaces = Math.pow(10,decPlaces);
+
+			    // Enumerate number abbreviations
+			    var abbrev = [ "k", "m", "b", "t" ];
+			    var i=-1;
+			    // Go through the array backwards, so we do the largest first
+			    for (i=abbrev.length-1; i>=0; i--) {
+
+			        // Convert array index to "1000", "1000000", etc
+			        var size = Math.pow(10,(i+1)*3);
+
+			        // If the number is bigger or equal do the abbreviation
+			        if(size <= number) {
+			             // Here, we multiply by decPlaces, round, and then divide by decPlaces.
+			             // This gives us nice rounding to a particular decimal place.
+			             number = Math.round(number*decPlaces/size)/decPlaces;
+
+			             // Handle special case where we round up to the next abbreviation
+			             if((number == 1000) && (i < abbrev.length - 1)) {
+			                 number = 1;
+			                 i++;
+			             }
+			            
+
+			             // We are done... stop
+			             break;
+			        }
+			    }
+			     number=parseFloat(number).toFixed(2);
+
+			             // Add the letter for the abbreviation
+			             if (i>-1)
+			             number += abbrev[i];
+
+			    return number;
+			 }
+
+			 function daysInMonth() {
+			 	var now = new Date();
+			 		var month = now.getMonth()+"";
+			 		var year = now.getFullYear()+"";
+			 		var current_date= now.getDate();
+
+				    return (new Date(year, month, 0).getDate())-current_date;
+				}
+
+			 
+			function process_seven_days(data)
+			 {
+			 	//alert("test");
+			 	var date=new Array();
+			 	var object=new Object();
+			 	object.date = "";
+			 	object.amount = 0;
+			 	//date=data[0].created_at;
+			 	//alert(data[0].amount);
+			 	var final_date=new Array();
+
+			 	for (var i=6; i>=0;i--)
+			 	{
+			 		//alert("test");
+			 		var aDate= new Date();
+			 		aDate.setDate(aDate.getDate()-i);
+			 		var curr_date = aDate.getDate()+"";
+					var curr_month = aDate.getMonth()+1+"";
+					var curr_year = aDate.getFullYear()+"";
+				//	final_date[]=0;
+					var key=curr_year + "-" + curr_month + "-" + curr_date;
+					final_date[key]=0;
+					//alert(final_date[key]);
+			 	}
+			 
+
+			 	for (var i in data)
+			 	{
+
+			 			var datetmp=data[i].created_at+"";
+			 			var dateArray = datetmp.split("-");
+			 			var cyear=dateArray[0];
+					 	var cmonth=dateArray[1];
+			 			var cdate=dateArray[2].substring(0,dateArray[2].indexOf(" "));
+			 			//alert(data[i].amount+" "+final_date[cyear+ "-" + cmonth + "-" + cdate]);
+			 		   	final_date[cyear+ "-" + cmonth + "-" + cdate]+=data[i].amount;
+			 		   //	alert(cyear+ "-" + cmonth + "-" + cdate+" "+final_date[cyear+ "-" + cmonth + "-" + cdate]);
+			 		   // console.log(cyear);
+			 			/*if (object.date !=data[i].created_at)
+			 		{
+			 			object=new Object();
+			 			object.date=data[i].created_at;
+			 			object.amount=0;
+			 			date.push(object);
+			 			//alert(object)
+			 		}*/
+			 		//alert(data[i].amount);
+			 		//date[date.length-1].amount+= data[i].amount;
+			 		//console.log(date[date.length-1].date+" "+date[date.length-1].amount);
+			 	}
+			 	for (var i in final_date)
+			 	{
+			 		console.log(i+" "+final_date[i]);
+			 	}
+			 	return final_date;
+			 	//console.log(date.length);
+			 }
 			/****************************************/
         }
-			</script>
+	</script>
 	</head>
 	<body>
 
 		<div data-role="page" id="#index">
 
 			<div data-role="header" data-theme="b" style="height:30px;">
+				<a id="deleteBtn" data-icon="delete" data-inline="true"  data-mini="true" data-iconpos="notext" data-rel="back"  style="margin-top:-3px; display:none">Delete</a>
+				
 				<h1>Budgit</h1> <!--data-rel="dialog"-->
-				<a href="#addPage"  data-icon="plus"  class="ui-btn-right" style="margin-top:-3px" data-inline="true" data-iconpos="notext" data-transition="slideup" >Add</a>
+				<!--<a href="#addPage"  data-icon="plus"  class="ui-btn-right" style="margin-top:-3px" data-inline="true" data-iconpos="notext" data-transition="slideup" >Add</a> -->
+				<a id="add" data-icon="plus"  data-inline="true"  data-mini="true" class="ui-btn-right" data-iconpos="notext" style="margin-top:-3px; display:none">Post</a>
 				
-				
+							
 			</div>
 			<!-- /header -->
 			<div data-role="content" style="padding:0px 0px 0px 0px;">
-				<div style="height:80px; background-color:gray;color:white;padding:5px 0px 5px 10px;" class="ui-body ui-body-a">
-					<div style="float:left">
-						<img src='img/vicbui.jpg' width='70px' height='70px' style="padding-top:5px "/>
-					</div>
+				<div id="profile" style="height:80px; background-color:gray;color:white;padding:5px 0px 5px 10px;" class="ui-body ui-body-a">
+						<div style ="overflow: hidden;width: 100%;">
+							<div class="profilePicture">
+								<img src='img/vicbui.jpg' width='70px' height='70px' style="padding-bottom:0px"/>
+							</div>
 
-					<div style="padding:5px 0px 0px 10px;float:left;">
-						<h4 style="padding:0px 0px 0px 0px;margin:0px 0px 0px 0px">Vic Bui </h4>
-					
+							<div style="padding:5px 0px 0px 10px;float:left;">
+								<h4 style="padding:0px 0px 0px 0px;margin:0px 0px 0px 0px">Vic Bui </h4>
+						
 
 
-					<!--<div class="ui-grid-a" style="width:200px">
-							<div class=" ui-block-a">
-								<div style="height:30px;width:55px; background-color:blue; text-align:center;" class="ui-body  badgeRed">
-								$40
-									<div style="font-size:11px;padding-top:0px;margin-top:0px;margin-left:">Remaining</div>
+						<!--<div class="ui-grid-a" style="width:200px">
+								<div class=" ui-block-a">
+									<div style="height:30px;width:55px; background-color:blue; text-align:center;" class="ui-body  badgeRed">
+									$40
+										<div style="font-size:11px;padding-top:0px;margin-top:0px;margin-left:">Remaining</div>
+									</div>
+								</div>
+								<div class="ui-block-b">
+									
+									<div style="height:30px;width:55px; background-color:blue; text-align:center;" class="ui-body ui-corner-all badgeGreen">
+									$100
+										<div style="font-size:11px;padding-top:0px;margin-top:0px;margin-left:0px">Balance</div>
+									</div>
 								</div>
 							</div>
-							<div class="ui-block-b">
+						-->
+							<div style="padding-top:5px;margin-left:0px">
+
+									<div style="font-size:14px;color:white;font-weight:bold;z-index:100;float:left;width:45px;text-align:center"> <div id="barChartbalanceS" >$13 </div>
+											<div style="font-size:11px;font-weight:bold;">Spent</div>
+									</div>
+									<div style="float:left;width:120px" class="bigChart">
+										<div id="barChartbalance" style="height:50px;width:120px;z-index:0;margin-left:-3px;margin-top:-10px;float:left">
+											</div>
+									
+											
+									</div>
+
+									<div style="margin-top:0px;font-size:14px;color:white;font-weight:bold;z-index:100;float:left;width:50px;text-align:center"><div id="barChartbalanceL" >$15 </div>
+											<div style="font-size:11px;padding-top:0px;margin-top:0px;font-weight:bold;">Left</div>
+									</div>
+
 								
-								<div style="height:30px;width:55px; background-color:blue; text-align:center;" class="ui-body ui-corner-all badgeGreen">
-								$100
-									<div style="font-size:11px;padding-top:0px;margin-top:0px;margin-left:0px">Balance</div>
-								</div>
 							</div>
 						</div>
-					-->
-						<div style="padding-top:5px;margin-left:0px">
-
-								<div id="barChartSpentw" style="font-size:18px;color:white;font-weight:bold;z-index:100;float:left;width:40px;text-align:center">$900
-										<div style="font-size:11px;font-weight:bold;">Spent</div>
-								</div>
-								<div style="float:left;width:140px">
-									<div id="barChartRemaining" style="height:45px;width:140px;z-index:0;margin-left:-10px;margin-top:-10px;float:left">
-										</div>
-								
-										
-								</div>
-
-								<div id="barChartLeftw" style="margin-top:0px;font-size:18px;color:white;font-weight:bold;z-index:100;float:left;width:40px;text-align:center">$100
-										<div style="font-size:11px;padding-top:0px;margin-top:0px;margin-left:0px;font-weight:bold;">Left</div>
-								</div>
-
-							
-						</div>
-
 					<!--<div class="ui-grid-a" style="margin-left:-15px;width:200px">
 							<div style="margin-top:-10px; margin-left:0px;padding-bottom:0px">
 								<div id="barChartSpent" style="height:80px;width:100px;z-index:0">
@@ -1534,13 +1920,107 @@
 							</div>
 						  </div>
 						 -->
-	
-
 					</div>
-				</div>
+				
 
+				</div>
+	
+					<div style="font-size:11px;color:dark-gray; padding:5px 5px 0px 5px;">
+						<div id="todayTxt">
+							Today's transaction :	
+						</div>
+						<input type="text" id="track_area" class="defaultTextActive" title="E.g: $10 #saving" value="E.g: $10 #saving" data-prevent-focus-zoom="true"></input>
+			
+						<div id="functionBar" style="display:none">
+							<div style="font-size:11px;color:dark-gray; padding-bottom:0px;" id="instructionTxt">
+								<div class="navlink ui-grid-a" data-role='none'>
+										
+
+										<div class="ui-block-a scrollable" id="resultMsg" style="text-align: left;height:50px"></div>
+										
+										<div class="ui-block-b scrollable" id="errorMsg"  style="color:red;text-align:left;height:50px">
+												
+										</div>
+								</div>
+							</div>
+							<ul id="suggestions" data-role="listview" data-inset="true" class="scrollable" style="display:none"> </ul>
+							<div style="background-color:lightgray; height:25px;" >
+								<div class="navlink" data-role='none'>
+									<div style="width:100%;float:left">
+											
+											<a class="links" data-role='none' name="#" href="#" style="float:left;width:20%;"># </a> 
+											
+											<a class="links" data-role='none' name="~"  href="#" style="float:left;width:5%;">~ </a>
+											
+
+											<div class="navlink" style="text-align: right; margin-top:3px;padding-right:10px;float:left;width:30%;">
+												<input id="scroller" name="scroller" style="display:none;" />
+												<a href="#" id="dateLnk" style="font-size:16px;color: gray;" >
+													12-20-32
+												</a>
+											</div>
+
+
+											<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" id="radioBtns" style="float:left;width:40%;padding-top:5px">
+											     	<input type="radio" name="transType" id="radioIncome" value="+" style="font-size:10px; height:0px" />
+											     	<label for="radioIncome" class="radiobtn" >Income</label>
+
+
+											     	<input type="radio" name="transType" id="radioExpense" value="-" checked="true" style="font-size:10px; height:0px"/>
+											     	<label for="radioExpense" class="radiobtn">Expense</label>
+
+											
+											</fieldset>	
+									
+												<!-- <div class="ui-block-a">	
+													<a class="links" data-role='none' name="+" href="#">+ </a></div>
+												<div class="ui-block-b">	
+													<a class="links" data-role='none' name="-" href="#">- </a>
+												</div> -->
+
+										
+									</div>
+									<!--<div class="ui-block-b">
+										<div class="ui-grid-a">
+																	</div>
+									-->
+								</div>
+									
+									 
+							</div> 
+						</div>
+
+
+					
+			
 
 									
+				</div>
+							<div id="allcats">
+							</div>
+							<!--<div style="padding-top:5px;margin-left:0px">
+									<div style="font-weight:bold;z-index:100;float:left;width:45px;text-align:center"> <div id="barChartFoodS" >$13 </div>
+											<div style="font-size:11px;font-weight:bold;">Spent</div>
+									</div>
+									<div style="position:relative;float:left;width:220px" class="smallChart">
+										<div id="barChartFood" style="height:50px;z-index:0;margin-left:-3px;margin-top:-10px;float:left">
+										</div>
+
+										<div id="barChartName" style="position:absolute;top:5px;left:100px;font-weight:bold;z-index:100;width:50px;text-align:center; color:white">
+												Food
+										</div> 
+										
+											
+									</div>
+									<div style="margin-top:0px;font-weight:bold;z-index:100;float:left;width:50px;text-align:center">
+											<div id="barChartFoodL" >$15 </div>
+											<div style="font-size:11px;padding-top:0px;margin-top:0px;font-weight:bold;">Left</div>
+									</div>
+							</div>-->
+
+							
+
+
 			</div>
 			<!-- /content -->
 
@@ -1550,7 +2030,7 @@
 
 		<!--page track -->
 
-		<div data-role="page"  class="track-dialog"  id="addPage">
+		<div data-role="page" id="cat">
 
 			<div data-role="header" data-theme="b" style="height:30px;">
 
@@ -1562,84 +2042,161 @@
 			</div>
 			<!-- /header -->
 
-			<div data-role="content" style="padding-bottom:0px; margin-bottom:0px">
-				<div style="font-size:11px;color:dark-gray; padding:0px 0px 4px 0px;">
-						Enter: $10 #saving or $10 #saving ~(optional text) 
-				</div>
-				<input type="text" id="track_area" class="defaultTextActive" title="E.g: $10 #saving" value="E.g: $10 #saving"></input>
-			
-				<div style="font-size:11px;color:dark-gray; padding-bottom:0px;" id="instructionTxt">
-					<div class="navlink ui-grid-a" data-role='none'>
-							
-
-							<div class="ui-block-a scrollable" id="resultMsg" style="text-align: left;height:50px"></div>
-							
-							<div class="ui-block-b scrollable" id="errorMsg"  style="color:red;text-align:left;height:50px">
-									
+			<div data-role="content" style="padding:0px 0px 0px 0px;">
+				<div id="profileCat" style="height:80px; background-color:gray;color:white;padding:5px 0px 5px 10px;" class="ui-body ui-body-a">
+						<div style ="overflow: hidden;width: 100%;">
+							<div style="float:left;height:60px;width:60px;text-align:center;padding:5px" class="badgeGreen">
+									<div id="dateLeft" style="font-size:40px">10</div> 
+									<div style="font-size:12px">days left</div>
 							</div>
-					</div>
-				</div>
-				<ul id="suggestions" data-role="listview" data-inset="true" class="scrollable" style="display:none"> </ul>
-			</div>
-			<div style="background-color:lightgray; height:25px;" >
-				<div class="navlink" data-role='none'>
-						<div style="width:100%;float:left">
-								
-								<a class="links" data-role='none' name="#" href="#" style="float:left;width:20%;"># </a> 
-								
-								<a class="links" data-role='none' name="~"  href="#" style="float:left;width:5%;">~ </a>
-								
+							<div style="padding:5px 0px 0px 10px;float:left">
 
-								<div class="navlink" style="text-align: right; margin-top:3px;padding-right:10px;float:left;width:30%;">
-									<input id="scroller" name="scroller" style="display:none;" />
-									<a href="#" id="dateLnk" style="font-size:16px;color: gray;" >
-										12-20-32
-									</a>
-								</div>
-
-
-								<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" id="radioBtns" style="float:left;width:40%">
-								     	<input type="radio" name="transType" id="radioIncome" value="+" style="font-size:10px; height:0px" />
-								     	<label for="radioIncome" class="radiobtn" >Income</label>
-
-
-								     	<input type="radio" name="transType" id="radioExpense" value="-" checked="true" style="font-size:10px; height:0px"/>
-								     	<label for="radioExpense" class="radiobtn">Expense</label>
-
-								
-								</fieldset>	
+								<h4 style="padding:0px 0px 5px 0px;margin:0px 0px 0px 0px" id="catTitle">Food </h4>
+								<div style="float:left;padding-right:10px">
 						
-									<!-- <div class="ui-block-a">	
-										<a class="links" data-role='none' name="+" href="#">+ </a></div>
-									<div class="ui-block-b">	
-										<a class="links" data-role='none' name="-" href="#">- </a>
-									</div> -->
+									<div id="total" style="padding-top:0px;margin-left:0px">
 
+										<div style="font-size:14px;color:white;font-weight:bold;z-index:100;float:left;width:45px;text-align:center"> <div id="barCharttotalS" >$13 </div>
+												<div style="font-size:11px;font-weight:bold;">Spent</div>
+										</div>
+										<div style="float:left;width:120px" class="bigChart">
+											<div id="barCharttotal" style="height:50px;width:120px;z-index:0;margin-left:-3px;margin-top:-10px;float:left">
+												</div>
+										
+												
+										</div>
+
+										<div style="margin-top:0px;font-size:14px;color:white;font-weight:bold;z-index:100;float:left;width:50px;text-align:center"><div id="barCharttotalL" >$15 </div>
+												<div style="font-size:11px;padding-top:0px;margin-top:0px;font-weight:bold;">Left</div>
+										</div>
+
+									
+										</div>
+								</div>
+							</div>
+							
+							
+							
+						</div>	
+				</div>
+				<div style="font-size:11px;color:dark-gray; padding:5px 5px 0px 5px;">
+						
+						<div id="todayTxtCat">
+							Today's transaction :	
+						</div>
+
+						<div style="float:left;font-weight:bold;font-size:16px;padding:16px 5px 0px 0px;text-align:center" type="text" id="catLbl" class="defaultTextActive" title="E.g: $10" value="E.g: $10" data-prevent-focus-zoom="true">#Food</div>
+
+						<input style="float:left;max-width:70%" type="text" id="cat_track_area" class="defaultTextActive" title="E.g: $10" value="E.g: $10" data-prevent-focus-zoom="true"></input>
+
+
+						<div class="ui-grid-a" style ="overflow: hidden;width: 100%;padding-bottom:5px">
+
+							<div class="ui-block-a">
+								<div id="lineChart" style="height:200px;width:180px;font-size:16px;margin-left:-16px; margin-top:-15px"></div>
+								<div class="legend" style="font-size:11px;color:gray;margin-top:-40px;z-index:100;height:20px;">
+									<div style="padding-left:2px;z-index:100">Food Expenses Last 7 days</div>
+								</div>
+								
+							</div>
+							<div class="ui-block-b">
+								<div id="pieChart" style="width:200px;height:200px;color:white;font-size:16px;margin-left:-20px;margin-top:-20px;padding-bottom:0px"></div>
+								<div class="legend" style="font-size:11px;color:gray;margin-top:-35px;z-index:100;height:20px; text-align:center; margin-left:20px">
+									<div style="float:left; width:10px;height:10px;background-color:#993333;z-index:100"></div>
+									<div style="float:left;padding-left:2px;padding-right:5px;z-index:100">Food</div>
+									<br>
+									<div style="float:left; width:10px;height:10px;background-color:#339900;z-index:100"></div>
+									<div style="float:left;padding-left:2px;z-index:100">Other Expenses</div>
+								</div>
+							</div>
 							
 						</div>
-						<!--<div class="ui-block-b">
-							<div class="ui-grid-a">
-														</div>
-						-->
-						</div>
+						<div style="padding-top:5px;padding-left:5px; text-align:left">
+							
+						<div data-role="collapsible-set" data-theme="c" data-content-theme="d"   data-collapsed-icon="arrow-r" data-expanded-icon="arrow-d" data-inset="true" id="list">
 						
-						 
-				</div> 
-			</div>			
-		
-			<!-- /content -->
+							<div data-role="collapsible">
+								<h2 data-icon="false">
+									<span style="float:left">$200</span>
+									<span style="float:right" class="ui-li-count"> (5) </span>
+									<span style="float:right">Today</span>
+									
+								</h2>
+								<ul data-role="listview">
+									<li data-icon="false">$30</li>
+								    <li data-icon="false">$30</li>
+									<li data-icon="false">$30</li>
+								</ul>
+							</div>
+							<div data-role="collapsible">
+								<h2 data-icon="false">
+									<span style="float:left">$200</span>
+									<span style="float:right" class="ui-li-count"> (2) </span>
+									<span style="float:right">23 OCT 2012</span>
+									
+								</h2>
+								<ul data-role="listview">
+									<li data-icon="false">$30</li>
+								    <li data-icon="false">$30</li>
+								
+								</ul>
+							</div>	
+							
+						</div>
+						<a class="loadmore" href="#">Load more... </a>
 
+
+
+							<!--	<ul data-role="listview" data-theme="d"  data-divider-theme="d">
+									<li data-role="list-divider">Food Expenses
+									  <span class="ui-li-aside"> OCT 2012</span> 
+										<span class="ui-li-count">5</span>
+									</li>
+									<li><a href="index.html">
+										
+											$200
+											<span class="ui-li-aside">Today</span> 
+											<span class="ui-li-count">5</span>
+										
+										</a>
+									</li>
+									<li><a href="index.html">
+											$200
+											<span class="ui-li-aside">23 OCT 2012</span> 
+											<span class="ui-li-count">2</span>
+										
+										
+										</a>
+									</li>
+								</ul> -->
+						</div>
+
+									
+				</div>
+
+				
+			</div>
+
+		
 
 
 
 		</div>
 
+
 	<script type="text/javascript" src="js/database.js"></script>
 	<script src="js/mobiscroll.js" type="text/javascript"></script>
+	
 	<script src="js/jqmcharts/jquery.jqplot.min.js" type="text/javascript"></script>
 	<script src="js/jqmcharts/jqplot.pointLabels.min.js" type="text/javascript"></script>
 	<script src="js/jqmcharts/jqplot.barRenderer.min.js" type="text/javascript"></script>
 	<script src="js/jqmcharts/jqplot.categoryAxisRenderer.min.js" type="text/javascript"></script>
+	<script src="js/jqmcharts/jqplot.pieRenderer.min.js" type="text/javascript"></script>
+	
+	<script src="js/cat.js" type="text/javascript"></script>
+	<script src="js/barchart.js" type="text/javascript"></script>
+	<script src="js/inputText.js" type="text/javascript"></script>
 
+<!-- -->
 	</body>
 </html>
