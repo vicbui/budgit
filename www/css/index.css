@@ -1,26 +1,40 @@
 /* dialog */
-.jqplot-series-canvas{
+.jqplot-event-canvas{
  /*display:none*/
- width: 125px;
+ z-index: 0;
+}
+.smallChart .jqplot-series-canvas{
+ /*display:none*/
+ width: 160px;
+ height: 30px;
+}
+
+.bigChart .jqplot-series-canvas{
+ /*display:none*/
+ width: 100px;
  height: 45px;
 }
+
 .jqplot-grid-canvas {
     display: none;
 }
 .jqplot-yaxis-tick{
 	display: none;	
 }
-
+.jqplot-xaxis-tick{
+	display: none;	
+}
 .jqplot-title{
 	display: none
 }
 .jqplot-point-label{
-	color: white;
-	display: none;
+/*	color: white;
+	display: none;*/
+	font-size: 15px;
 }
 .jqplot-series-canvas{
 	top:0px;
-}
+}*/
 .ui-dialog.track-dialog .ui-dialog-contain 
 { 
 	margin-top: 10%; 
@@ -66,9 +80,9 @@
 /*track input */
 #track_area
 {
-	margin-top:0px;
-	height:35px; 
-	max-height: 70px;
+	margin-top:5px;
+	/*height:30px; 
+	max-height: 70px;*/
 	padding-bottom: 0px; 
 	white-space: pre-wrap; 
 }
@@ -148,6 +162,19 @@ background-image: -o-linear-gradient(#74B042, #56A00E);
 background-image: linear-gradient(#74B042, #56A00E);
 }
 /*"", "#df8321",*/
+.badgeBlue {
+border: 1px solid #5E87B0;
+background: #5E87B0;
+color: white;
+font-weight: bold;
+background-image: -webkit-gradient(linear,left top,left bottom,from( #5E87B0),to( #5E87B0));
+background-image: -webkit-linear-gradient( #5E87B0,#5E87B0 );
+background-image: -moz-linear-gradient( #5E87B0,#5E87B0 );
+background-image: -ms-linear-gradient( #5E87B0,#5E87B0 );
+background-image: -o-linear-gradient(#5E87B0,#5E87B0);
+background-image: linear-gradient( #5E87B0,#5E87B0);
+}
+
 .badgeRed {
 border: 1px solid #bc4427;
 background: #bc4427;
@@ -160,3 +187,12 @@ background-image: -ms-linear-gradient( #bc4427,#bc4427 );
 background-image: -o-linear-gradient( #bc4427,#bc4427 );
 background-image: linear-gradient( #bc4427,#bc4427 );
 }
+/*****************profilePicture **************/
+.profilePicture {
+width:'70px';
+height:'70px';
+float:left;
+padding-bottom: 0px;
+padding-top: 0px;
+}
+
