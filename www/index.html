@@ -35,6 +35,8 @@
 				var date_pending=new Object();
 				var afternumber;
 				var plot; 
+				var current_page=1;
+				var itemPerLoad=5;
 				
          // document.addEventListener("deviceready", onDeviceReady, false);
     
@@ -89,30 +91,25 @@
 
 								if($.mobile.activePage.attr("id") == "cat"){
 									//alert("test");
+									window.localStorage.setItem('current_page',1);
 									
-		
+								/*	window.localStorage.getItem("cat");
+									window.localStorage.setItem("cat", "");
+								*/
 
 									var data=JSON.parse(window.localStorage.getItem("cat"));
-									window.localStorage.removeItem("cat");
-									window.localStorage.setItem("cat", "");
-
+									
 
 									var total=$("#total");
 									total.barChart();
 									total.data('barChart').showChart('total','#993333', '#339900', data.spent,data.left);
 
 									$("#dateLeft").text(daysInMonth());	
-									$("#catTitle").text(data.catName);
+									$("#catTitle").text(capitaliseFirstLetter(data.catName));
 									$("#catLbl").text("#"+data.catName);
 									$("#cat_track_area").inputText();
 									$("#cat_track_area").data('inputText').init();
                                      
-									var chartValue = [50,50];
-									var pieChart=$("#pieChart");
-									pieChart.barChart();
-									pieChart.data('barChart').pieChart('pieChart','#993333', '#339900',chartValue);
-									
-
 									
 									var transactions=new Object();
 									transactions.data= new Array();
@@ -132,82 +129,123 @@
 															 		chartValue.push(seven_dates[i] * -1);
 															 		//console.log(i+" "+final_date[i]);
 															 	}
-															 	for (var i=1; i<chartValue.length;i++)
-															 	{
-															 		console.log(chartValue[i]);
-															 	}
 															 	//chartValue=[0,0,0,0,0,7,10];	
 																var lineChart=$("#lineChart");
 																lineChart.barChart();
 																lineChart.data('barChart').lineChart('lineChart','#5E87B0',chartValue);
-								 				    		  	//alert("success");
-								 				    		  	//console.log(transactions.results.length);
-								 				    		  //	alert(transactions.data[0].amount);
+																$("#legendLine").text(capitaliseFirstLetter(data.catName)+" Expenses last 7 days");
+								 				    		  	
 								 				    		  });	
-
-									/*db.transaction(function(db)
+									var transactions1=new Object();
+									transactions1.results= new Object();
+									db.transaction(function(db)
 								 				   {
-								 				   		get_trans_last_7_days_by_cat_name(db,data.catName,transactions);
-								 				    },errorDB,function()
+								 				   		var current_month= (new Date().getMonth()+1)+"";
+								 				   		//alert(current_month);
+								 						get_trans_perc_by_cat_name_month(db,data.catName,current_month,transactions1);	    
+								 					},errorDB,function()
 								 				    		  { 
-								 				    		  	var chartValue=new Array();
-								 				    		  	var seven_dates=new Array();
-								 				    		  	seven_dates=process_seven_days(transactions.data);
-								 				    		  	//alert(seven_dates); 
-								 				    		  	for (var i in seven_dates)
-															 	{
-															 		//alert(seven_dates[i]);
-															 		chartValue.push(seven_dates[i] * -1);
-															 		//console.log(i+" "+final_date[i]);
-															 	}
-															 	for (var i=1; i<chartValue.length;i++)
-															 	{
-															 		console.log(chartValue[i]);
-															 	}
-															 	//chartValue=[0,0,0,0,0,7,10];	
-																var lineChart=$("#lineChart");
-																lineChart.barChart();
-																lineChart.data('barChart').lineChart('lineChart','#5E87B0',chartValue);
-								 				    		  	//alert("success");
-								 				    		  	//console.log(transactions.results.length);
-								 				    		  //	alert(transactions.data[0].amount);
-								 				    		  });	*/
+								 				    		  	//alert(transactions1.results.perccat+" "+transactions1.results.percothers);
+								 				    		  		var chartValue = [transactions1.results.perccat,transactions1.results.percothers];
+																	var pieChart=$("#pieChart");
+																	pieChart.barChart();
+																	pieChart.data('barChart').pieChart('pieChart','#993333', '#339900',chartValue);
+																	$("#legendPie").text(capitaliseFirstLetter(data.catName));
+								 				    		  });
+									var transactions2=new Object();
+									transactions2.results= new Array();
+									offset=0,limit=0;
+									
+									$("#list").parent().find(".end").remove();
+									addResultToList(db,transactions2,data.catName,itemPerLoad);
 
 
+									function addResultToList (db,transactions2,name,itemPerLoad)
+									{
+										//alert("test");
+										db.transaction(function(db)
+								 		{
+							 	  		    var current_page=window.localStorage.getItem("current_page");
+								 			var offset=itemPerLoad*(current_page-1);
+								 			var limit=itemPerLoad;
+								 			get_trans_date_paging_by_cat_name(db,data.catName,offset,limit,transactions2);
+								 			   
+								 		},errorDB,function()
+								 				    {
+								 				 	 var current_page=window.localStorage.getItem("current_page");
+								 		 		  	 var str="";
+								 		 		  		
+								 		 		  		for (var i in transactions2.results)
+								 		 		  		{	
+								 		 		  			//	alert(transactions2.results[i]);
+								 		 		  				var aDate=transactions2.results[i];
+								 		 		  				var idName='collapse'+i+'page'+current_page+'';
+								 		 		  				//alert(transactions2.results[i]);
+											 		 		  	var str='<div data-role="collapsible">'+
+																'<h2 data-icon="false">'+
+																	'<span style="float:left">'+formatDate(aDate)+'</span>'+
+																	'<span style="float:right" id="pricecollapse'+i+'page'+current_page+'"></span>'+
+																'</h2><ul id="collapse'+i+'page'+current_page+'" data-role="listview"></ul></div>'
+																 	  
+																$("#list").append(str).collapsibleset("refresh");
+																
+														 		get_trans_date_by_cat_name_date(db,name,aDate,idName,addToCollapse);
+						
+		 		 		  								}
+		 		 		  								$("#list").parent().find(".loading").remove();
+		 		 		  								$(".loadmore").show();
+
+		 		 		  								if (transactions2.results.length==0)
+		 		 		  								{
+															$("#list").parent().append('<div class="end">No more transactions</div>');
+															$(".loadmore").hide();
+		 		 		  								}
+						 				    		});
+						
+									}										
+									var addToCollapse = function (alltrans)
+									{
+										var str="";
+										$("#price"+alltrans.divname).text("$"+alltrans.total+" ("+alltrans.results.length+")");
+
+										for (var i in alltrans.results)
+										{
+											str+= '<li data-icon="false" style="overflow:hidden">';
+											str+= '<span style="float:left">'+ capitaliseFirstLetter(alltrans.cat)+'</span>';
+											str+= '<span style="float:right">$'+alltrans.results[i]+'</span>';
+											str+= '</li>'
+										}
+							
+										$("#"+alltrans.divname).append(str);
+										$("#"+alltrans.divname).listview();
+										$("#"+alltrans.divname).listview("refresh");
+							
+									}
+
+
+								 $(".loadmore").click(function(event){
+								 		$("#list").parent().append('<div class="loading"><img src="img/spinner.gif" alt="Loading..."/></div>'); 
+								 	$(this).hide();
+
+								 	event.preventDefault();
+									var data=JSON.parse(window.localStorage.getItem("cat"));
+							 	    var current_page=parseInt(window.localStorage.getItem("current_page"))+1;
+							 	    var transactions2=new Object();
+									transactions2.results= new Array();
+							 		window.localStorage.setItem("current_page",current_page);
+							 		addResultToList(db,transactions2,data.catName,itemPerLoad);
+							 		})
 
 								}
 								else 
 									{
+										window.localStorage.removeItem("cat");
+										window.localStorage.setItem("cat", "");
 										loadAllDashboard();
 									}
 							})	
   
-							 $(".loadmore").click(function(event){
 
-							           //	alert("test");
-							           	var str='<div data-role="collapsible">'+
-											'<h2 data-icon="false">'+
-												'<span style="float:left">$200</span>'+
-												'<span style="float:right" class="ui-li-count"> (2) </span>'+
-												'<span style="float:right">23 OCT 2012</span>'+
-												
-											'</h2>'+
-											'<ul data-role="listview" class="list2">'+
-												'<li data-icon="false">$30</li>'+
-											    '<li data-icon="false">$30</li>'+
-											
-											'</ul>'+
-										'</div>';	
-
-
-											//alert(str);
-							           		$("#list").append(str).collapsibleset("refresh");
-											//$("#list2").listview('refresh');
-											//alert($("#list2").html());
-											$(".list2").listview();
-											//alert("test");
-							           		$(".list2").listview('refresh',true);
-							           })
 
 						$("#scroller").scroller({ 
 													display :'modal',
@@ -234,6 +272,7 @@
 							return false;
 						});
 
+					 
 						
 					 	function length_numbers()
 					 	{
@@ -673,7 +712,6 @@
 						function showChart(id,color1,color2,value1,value2)
 						{
 							var name="barChart"+id;
-							console.log(name);
 							var idw2=name+"L";
 							var idw=name+"S";
 							var total=value1+value2;
@@ -1704,6 +1742,11 @@
          
 			/****************Helper *******************************/
 
+			function capitaliseFirstLetter(string)
+			{
+			    return string.charAt(0).toUpperCase() + string.slice(1);
+			}
+
 			new function($) {
 			  $.fn.setCursorPosition = function(pos) {
 			    if ($(this).get(0).setSelectionRange) {
@@ -1759,14 +1802,37 @@
 
 			 function daysInMonth() {
 			 	var now = new Date();
-			 		var month = now.getMonth()+"";
+			 		var month = now.getMonth()+1+"";
 			 		var year = now.getFullYear()+"";
 			 		var current_date= now.getDate();
-
+			 		//alert (current_date);
+			 		//alert ((new Date(year, month, 0).getDate())+"");
 				    return (new Date(year, month, 0).getDate())-current_date;
 				}
 
-			 
+			function formatDate(date)
+			{
+				//var aDate= new Date(date);
+				//alert("test");
+				var today= new Date();
+				var yest_date = today.getDate()-1+"";
+				var curr_date = today.getDate()+"";
+				var curr_month = today.getMonth()+1+"";
+				var curr_year = today.getFullYear()+"";
+				var today_date = curr_year+"-"+curr_month+"-"+curr_date;
+				//alert(today_date);
+				if (today_date==date)
+					return "Today"
+				else
+					if ((curr_year+"-"+curr_month+"-"+yest_date)==date)
+						return "Yesterday"
+					else
+					{
+						var array=date.split("-");
+						return array[2]+"-"+array[1]+"-"+array[0];
+					}
+					
+			}
 			function process_seven_days(data)
 			 {
 			 	//alert("test");
@@ -1796,7 +1862,7 @@
 			 	for (var i in data)
 			 	{
 
-			 			var datetmp=data[i].created_at+"";
+			 			var datetmp=data[i].updated_at+"";
 			 			var dateArray = datetmp.split("-");
 			 			var cyear=dateArray[0];
 					 	var cmonth=dateArray[1];
@@ -1816,10 +1882,6 @@
 			 		//alert(data[i].amount);
 			 		//date[date.length-1].amount+= data[i].amount;
 			 		//console.log(date[date.length-1].date+" "+date[date.length-1].amount);
-			 	}
-			 	for (var i in final_date)
-			 	{
-			 		console.log(i+" "+final_date[i]);
 			 	}
 			 	return final_date;
 			 	//console.log(date.length);
@@ -2028,6 +2090,25 @@
 		<!-- /page -->
 
 
+		<!--Transaction details page-->
+		<div data-role="page" id="#index">
+
+			<div data-role="header" data-theme="b" style="height:30px;">
+				<a id="deleteBtn" data-icon="delete" data-inline="true"  data-mini="true" data-iconpos="notext" data-rel="back"  style="margin-top:-3px; display:none">Delete</a>
+				
+				<h1>Budgit</h1> <!--data-rel="dialog"-->
+				<!--<a href="#addPage"  data-icon="plus"  class="ui-btn-right" style="margin-top:-3px" data-inline="true" data-iconpos="notext" data-transition="slideup" >Add</a> -->
+				<a id="add" data-icon="plus"  data-inline="true"  data-mini="true" class="ui-btn-right" data-iconpos="notext" style="margin-top:-3px; display:none">Post</a>
+				
+							
+			</div>
+			<!-- /header -->
+			<div data-role="content" style="padding:0px 0px 0px 0px;">
+			</div>
+
+		</div>
+		<!-- /page -->		
+
 		<!--page track -->
 
 		<div data-role="page" id="cat">
@@ -2079,7 +2160,7 @@
 							
 						</div>	
 				</div>
-				<div style="font-size:11px;color:dark-gray; padding:5px 5px 0px 5px;">
+				<div style="font-size:11px;color:dark-gray; padding:5px 5px 10px 5px;">
 						
 						<div id="todayTxtCat">
 							Today's transaction :	
@@ -2093,9 +2174,9 @@
 						<div class="ui-grid-a" style ="overflow: hidden;width: 100%;padding-bottom:5px">
 
 							<div class="ui-block-a">
-								<div id="lineChart" style="height:200px;width:180px;font-size:16px;margin-left:-16px; margin-top:-15px"></div>
+								<div id="lineChart" style="height:200px;width:180px;font-size:16px;margin-left:-16px; margin-top:-5px"></div>
 								<div class="legend" style="font-size:11px;color:gray;margin-top:-40px;z-index:100;height:20px;">
-									<div style="padding-left:2px;z-index:100">Food Expenses Last 7 days</div>
+									<div id="legendLine" style="padding-left:2px;z-index:100">Food Expenses Last 7 days</div>
 								</div>
 								
 							</div>
@@ -2103,7 +2184,7 @@
 								<div id="pieChart" style="width:200px;height:200px;color:white;font-size:16px;margin-left:-20px;margin-top:-20px;padding-bottom:0px"></div>
 								<div class="legend" style="font-size:11px;color:gray;margin-top:-35px;z-index:100;height:20px; text-align:center; margin-left:20px">
 									<div style="float:left; width:10px;height:10px;background-color:#993333;z-index:100"></div>
-									<div style="float:left;padding-left:2px;padding-right:5px;z-index:100">Food</div>
+									<div id="legendPie" style="float:left;padding-left:2px;padding-right:5px;z-index:100">Food</div>
 									<br>
 									<div style="float:left; width:10px;height:10px;background-color:#339900;z-index:100"></div>
 									<div style="float:left;padding-left:2px;z-index:100">Other Expenses</div>
@@ -2111,40 +2192,32 @@
 							</div>
 							
 						</div>
-						<div style="padding-top:5px;padding-left:5px; text-align:left">
+						<div style="padding-top:5px;padding-left:5px; text-align:center">
 							
 						<div data-role="collapsible-set" data-theme="c" data-content-theme="d"   data-collapsed-icon="arrow-r" data-expanded-icon="arrow-d" data-inset="true" id="list">
 						
-							<div data-role="collapsible">
+							
+						</div>
+						<!--	<div data-role="collapsible">
 								<h2 data-icon="false">
-									<span style="float:left">$200</span>
-									<span style="float:right" class="ui-li-count"> (5) </span>
-									<span style="float:right">Today</span>
-									
-								</h2>
-								<ul data-role="listview">
-									<li data-icon="false">$30</li>
-								    <li data-icon="false">$30</li>
-									<li data-icon="false">$30</li>
-								</ul>
-							</div>
-							<div data-role="collapsible">
-								<h2 data-icon="false">
-									<span style="float:left">$200</span>
+									<span style="float:left">23 OCT 2012</span>
 									<span style="float:right" class="ui-li-count"> (2) </span>
-									<span style="float:right">23 OCT 2012</span>
+									<span style="float:right">$200</span>
 									
 								</h2>
 								<ul data-role="listview">
-									<li data-icon="false">$30</li>
+									<li data-icon="false">
+											<span style="float:left">$100</span>
+											<span style="float:right">10:34 </span>			
+									</li>
 								    <li data-icon="false">$30</li>
 								
 								</ul>
-							</div>	
-							
+							</div>-->	
+						<a class="loadmore" href="#" >Load more... </a>
+		
 						</div>
-						<a class="loadmore" href="#">Load more... </a>
-
+					
 
 
 							<!--	<ul data-role="listview" data-theme="d"  data-divider-theme="d">

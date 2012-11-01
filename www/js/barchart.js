@@ -1,3 +1,5 @@
+//import helper in here !!
+
 (function ($)
 {
 	var BarChart= function(element,options)
@@ -91,7 +93,6 @@
 						//	);
 				//alert("showca");
 							var name="barChart"+id;
-							console.log(name);
 							var idw2=name+"L";
 							var idw=name+"S";
 							var total=value1+value2;
@@ -219,7 +220,7 @@
 										'<div id="'+chartname+'" style="width:180px;height:50px;z-index:0;margin-left:0px;margin-top:-10px;float:left">'+
 										'</div>'+
 
-										'<div class="barChartName" style="position:absolute;top:5px;left:20px;font-weight:bold;z-index:100;color:white">'+catname+'</div>' +
+										'<div class="barChartName" style="position:absolute;top:5px;left:20px;font-weight:bold;z-index:100;color:white">'+capitaliseFirstLetter(catname)+'</div>' +
 										
 											
 									'</div>'+

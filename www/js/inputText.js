@@ -245,7 +245,7 @@ $.when(loading).then(function() {
 	    						 if (e.keyCode == 13)
 	    						 {
 	    						 	obj.enterToSave();
-	    						 	obj.switchOffTextScreen();
+	    						 	//obj.switchOffTextScreen();
 	    						 	//entertoPending(text);
 	    						 }
 
@@ -299,13 +299,30 @@ $.when(loading).then(function() {
     					})
 
     					elem.keydown(function(e){
-    						if (elem.is(":focus")) {
-								if ($("#"+name+"profile").is(':visible'))
-								{
-									obj.switchOnTextScreen();
+    						
+    						/*if (elem.is(":focus")) {
+
+								
+							}*/
+							//alert("test");
+						
+							//alert(elem.val());
+							var text= elem.val();
+							if ((elem.is(":focus"))) {
+
+
+							 	if (($("#"+name+"functionBar").is(':visible'))==false)
+							 	{
+							 		if (text=="$0.00")
+									{
+										obj.switchOnTextScreen();
+									}
 								}
 							}
-       						var text= elem.val();
+							
+
+							//console.log(text+" test");
+    						
     						if (elem.getCursorPosition()<obj.length_numbers())
     						{
     							elem.setCursorPosition(obj.length_numbers());
@@ -571,29 +588,102 @@ $.when(loading).then(function() {
 								 				   		get_trans_last_7_days_by_cat_name(db,name,transactions);
 								 				    },errorDB,function()
 								 				    		  { 
-								 				    		  	//alert("tests");
 								 				    		  	var chartValue=new Array();
 								 				    		  	var seven_dates=new Array();
 								 				    		  	seven_dates=process_seven_days(transactions.data);
-								 				    		  	//alert(seven_dates); 
 								 				    		  	for (var i in seven_dates)
 															 	{
-															 		//alert(seven_dates[i]);
 															 		chartValue.push(seven_dates[i] * -1);
-															 		//console.log(i+" "+final_date[i]);
 															 	}
-															 	for (var i=1; i<chartValue.length;i++)
-															 	{
-															 		console.log(chartValue[i]);
-															 	}
-															 	//chartValue=[0,0,0,0,0,7,10];	
-																//var lineChart=$("#lineChart");
-																//lineChart.barChart();
-																$("#lineChart").data('barChart').lineChart('lineChart','#5E87B0',chartValue);
-								 				    		  	//alert("success");
-								 				    		  	//console.log("finis");
-								 				    		  //	alert(transactions.data[0].amount);
+															 
+															 	$("#lineChart").data('barChart').lineChart('lineChart','#5E87B0',chartValue);
 								 				    		  });	
+					var transactions1=new Object();
+					transactions1.results= new Object();
+					db.transaction(function(db)
+								 				   {
+								 				   		var current_month= (new Date().getMonth()+1)+"";
+								 				   		//alert(current_month);
+								 						get_trans_perc_by_cat_name_month(db,name,current_month,transactions1);	    
+								 					},errorDB,function()
+								 				    		  { 
+								 				    		  	//alert("test");
+								 				    		  	//alert(transactions1.results.perccat+" "+transactions1.results.percothers);
+								 				    		  		var chartValue1 = [transactions1.results.perccat,transactions1.results.percothers];
+																	$("#pieChart").data('barChart').pieChart('pieChart','#993333', '#339900',chartValue1);
+															  });
+
+								$("#list").html("");
+								
+									window.localStorage.setItem("current_page",1);
+									var transactions2=new Object();
+									transactions2.results= new Array();
+									$("#list").parent().find(".end").remove();
+									addResultToList(db,transactions2,name,5);
+								
+
+									function  addResultToList(db,transactions2,name,itemPerLoad)
+									{
+										db.transaction(function(db)
+								 		{
+							 	  		    var current_page=window.localStorage.getItem("current_page");
+								 			var offset=itemPerLoad*(current_page-1);
+								 			var limit=itemPerLoad;
+								 			get_trans_date_paging_by_cat_name(db,name,offset,limit,transactions2);
+								 			   
+								 		},errorDB,function()
+								 				    {
+								 				    	//alert("test");
+								 				 	 var current_page=window.localStorage.getItem("current_page");
+								 		 		  	 var str="";
+								 		 		  		
+								 		 		  		for (var i in transactions2.results)
+								 		 		  		{	
+								 		 		  			//	alert(transactions2.results[i]);
+								 		 		  				var aDate=transactions2.results[i];
+								 		 		  				var idName='collapse'+i+'page'+current_page+'';
+								 		 		  				//alert(transactions2.results[i]);
+											 		 		  	var str='<div data-role="collapsible">'+
+																'<h2 data-icon="false">'+
+																	'<span style="float:left">'+formatDate(aDate)+'</span>'+
+																	'<span style="float:right" id="pricecollapse'+i+'page'+current_page+'"></span>'+
+																'</h2><ul id="collapse'+i+'page'+current_page+'" data-role="listview"></ul></div>'
+																 	  
+																$("#list").append(str).collapsibleset("refresh");
+																
+														 		get_trans_date_by_cat_name_date(db,name,aDate,idName,addToCollapse);
+						
+		 		 		  								}
+		 		 		  								$("#list").parent().find(".loading").remove();
+		 		 		  								$(".loadmore").show();
+
+		 		 		  								if (transactions2.results.length==0)
+		 		 		  								{
+															$("#list").parent().append('<div class="end">No more transactions</div>');
+															$(".loadmore").hide();
+		 		 		  								}
+						 				    		});
+						
+									}										
+									var addToCollapse = function (alltrans)
+									{
+										var str="";
+										$("#price"+alltrans.divname).text("$"+alltrans.total+" ("+alltrans.results.length+")");
+
+										for (var i in alltrans.results)
+										{
+											str+= '<li data-icon="false" style="overflow:hidden">';
+											str+= '<span style="float:left">'+ capitaliseFirstLetter(alltrans.cat)+'</span>';
+											str+= '<span style="float:right">$'+alltrans.results[i]+'</span>';
+											str+= '</li>'
+										}
+							
+										$("#"+alltrans.divname).append(str);
+										$("#"+alltrans.divname).listview();
+										$("#"+alltrans.divname).listview("refresh");
+							
+									}
+
 
 				}
 
