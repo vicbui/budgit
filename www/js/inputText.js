@@ -633,7 +633,6 @@ $.when(loading).then(function() {
 								 			   
 								 		},errorDB,function()
 								 				    {
-								 				    	//alert("test");
 								 				 	 var current_page=window.localStorage.getItem("current_page");
 								 		 		  	 var str="";
 								 		 		  		
