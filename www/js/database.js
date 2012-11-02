@@ -32,6 +32,7 @@ tx.executeSql('INSERT INTO TRANS (amount,optional,created_at,updated_at,catid) V
 tx.executeSql('INSERT INTO TRANS (amount,optional,created_at,updated_at,catid) VALUES (-20.0,"","2012-10-30 06:00:00","2012-10-30 06:00:00",0)');
 tx.executeSql('INSERT INTO TRANS (amount,optional,created_at,updated_at,catid) VALUES (-20.0,"","2012-10-29 06:00:00","2012-10-30 06:00:00",0)');
 tx.executeSql('INSERT INTO TRANS (amount,optional,created_at,updated_at,catid) VALUES (-20.0,"","2012-10-31 06:00:00","2012-10-31 06:00:00",0)');
+tx.executeSql('INSERT INTO TRANS (amount,optional,created_at,updated_at,catid) VALUES (-20.0,"","2012-11-01 06:00:00","2012-11-01 06:00:00",0)');
 
 
 tx.executeSql('INSERT INTO TRANS (amount,optional,created_at,updated_at,catid) VALUES (-10.0,"","2012-10-25 06:00:00","2012-10-29 06:00:00",1)');
@@ -285,7 +286,7 @@ function get_trans_perc_by_cat_name_month(tx,name,month,transactions)
 			id = results.rows.item(0).id;
 			//id=1;
 		 		
-		 		tx.executeSql("SELECT * FROM TRANS WHERE (strftime('%m', date(created_at))=?) AND (strftime('%Y', date(created_at))=?) ORDER BY created_at ASC",[month,year],function (tx,results){
+		 		tx.executeSql("SELECT * FROM TRANS WHERE (strftime('%m', date(updated_at))=?) AND (strftime('%Y', date(updated_at))=?) ORDER BY updated_at ASC",[month,year],function (tx,results){
 		 	 		//alert(name); 
 	  			    var len = results.rows.length, i;
 					 // alert(len);
@@ -309,26 +310,64 @@ function get_trans_date_paging_by_cat_name(tx,name,offset,limit,transactions)
 			 		//alert(transactions.test);
 
 	tx.executeSql("SELECT * FROM CAT WHERE name=?", [name],function (tx, results) {
-			var id = results.rows.item(0).id;
-			//id=1;
-		 		//alert(id);AND 
-		 		//2*(3-1),2
-		 		//alert(id);
-		 		tx.executeSql("select DISTINCT(date(updated_at)) as updated_at from TRANS WHERE catid=? ORDER BY updated_at DESC LIMIT ?,?",[id,offset,limit],function (tx,results){
-		 			  var len = results.rows.length, i;
-					 // alert(len);
-					  for (i = 0; i < len; i++) {
-					    	transactions.results.push(results.rows.item(i).updated_at);
-					    	//alert(results.rows.item(i).updated_at);
-					    	//console.log(transactions.data[i].created_at);
-					    	// alert(transactions.data[i].amount);
-					   // alert
-					  }
+			
+			var id = -1;
+					if (results.rows.length>0)
+					{
+						id = results.rows.item(0).id;
+						//alert(id+" "+offset+limit);
+						tx.executeSql("select DISTINCT(date(updated_at)) as updated_at from TRANS WHERE catid=? ORDER BY updated_at DESC LIMIT ?,?",[id,offset,limit],function (tx,results){
+		 			 	var len = results.rows.length, i;
+						  for (i = 0; i < len; i++) {
+						//		   alert("test");
+						    	transactions.results.push(results.rows.item(i).updated_at);
+						    	//alert(results.rows.item(i).updated_at);
+						    	//console.log(transactions.data[i].created_at);
+						    	// alert(transactions.data[i].amount);
+						   // alert
+						  }
 					  
+		 				});
+		 			}
+		 			else
+		 			{
+						tx.executeSql("select DISTINCT(date(updated_at)) as updated_at from TRANS ORDER BY updated_at DESC LIMIT ?,?",[offset,limit],function (tx,results){
+		 			 	var len = results.rows.length, i;
+						  for (i = 0; i < len; i++) {
+						    	transactions.results.push(results.rows.item(i).updated_at);
+						    	//alert(results.rows.item(i).updated_at);
+						    	//console.log(transactions.data[i].created_at);
+						    	// alert(transactions.data[i].amount);
+						   // alert(results.rows.item(i).updated_at);
+						  }
+					  
+		 				});
+		 			}
+		 		
+		});
+}
+function get_trans_max_min_avg_by_cat_name_month(tx,name,month,transactions)
+{
+			 		//alert(transactions.test);
+			 //		alert(name);
+	var year = new Date().getFullYear()+"";
+	var totalcat=0,totalothers=0;
+	var id;
+	tx.executeSql("SELECT * FROM CAT WHERE name=?", [name],function (tx, results) {
+			id = results.rows.item(0).id;
+			//alert(id);
+		 		tx.executeSql("SELECT MAX(ABS(amount)) as maxSpend,MIN(ABS(amount)) as minSpend,AVG(ABS(amount)) as avgSpend FROM TRANS WHERE (catid=?) AND (strftime('%m', date(updated_at))=?) AND (strftime('%Y', date(updated_at))=?)",[id,month,year],function (tx,results){
+		 	 		 // alert("test");
+					  transactions.results.maxSpend=Math.round(results.rows.item(0).maxSpend);
+					  transactions.results.minSpend=Math.round(results.rows.item(0).minSpend);
+					  transactions.results.avgSpend=Math.round(results.rows.item(0).avgSpend);
+					 // alert(transactions.results.maxSpend);
+					 // alert(transactions.results.maxSpend);
 		 		});
 		});
 }
-function get_trans_date_by_cat_name_date(tx,name,date,idName,callback)
+
+function get_trans_date_by_cat_name_date(tx,name,date,idName,contextObject,callback)
 									{
 										var alltrans = new Object();
 										alltrans.results= new Array();
@@ -337,28 +376,50 @@ function get_trans_date_by_cat_name_date(tx,name,date,idName,callback)
 			   				 		  {		
 			   				 		  //	alert(date);
 			   				 		  //alert(transactions.test);
-										tx.executeSql("SELECT * FROM CAT WHERE name=?", [name],function (tx, results) {
-												var id = results.rows.item(0).id;
-												//alert(id);
-											 		tx.executeSql("SELECT * FROM TRANS WHERE catid=? AND date(updated_at)= ?", [id,date],function (tx, results) {
-												
-													var len = results.rows.length, i;
-													var total=0;
-														 // alert(len);
-														  for (i = 0; i < len; i++) {
-														    	alltrans.results.push(Math.abs(results.rows.item(i).amount));
-														    	total=total+Math.abs(results.rows.item(i).amount);
-														    	//console.log(transactions.data[i].created_at);
-														    	// alert(transactions.data[i].amount);
-														  }
-														 alltrans.total=total.toFixed(2);
-														 //alert(total+" "+date);
-														 alltrans.divname=idName;
-														 alltrans.cat=name;
-														 callback(alltrans);
+			   				 		  	if (name!="")
+			   				 		  	{	
+											tx.executeSql("SELECT * FROM CAT WHERE name like ?", [name],function (tx, results) {
+													var id = results.rows.item(0).id;
+														//alert(id);	
+												 		tx.executeSql("SELECT TRANS.amount as amount,CAT.name as name FROM TRANS INNER JOIN CAT ON TRANS.catid=CAT.id WHERE TRANS.catid=? AND date(TRANS.updated_at)= ? ", [id,date],function (tx, results) {
+													
+														var len = results.rows.length, i;
+														var total=0;
+															 // alert(len);
+															  for (i = 0; i < len; i++) {
+															    	var obj=new Object();
+															  		obj.amount=Math.abs(results.rows.item(i).amount);
+															  		obj.name=results.rows.item(i).name;
+															    	alltrans.results.push(obj);
+															    	total=total+Math.abs(results.rows.item(i).amount);
+															  }
+															 alltrans.total=total.toFixed(2);
+															 //alert(total+" "+date);
+															 alltrans.divname=idName;
+															 alltrans.cat=name;
+															 callback(alltrans,contextObject);
+													});
 												});
-											});
-
+										}
+										else
+										{
+												tx.executeSql("SELECT TRANS.amount as amount,CAT.name as name FROM TRANS INNER JOIN CAT ON TRANS.catid=CAT.id WHERE date(TRANS.updated_at)= ?", [date],function (tx, results) {		
+														var len = results.rows.length, i;
+														var total=0;
+															 // alert(len);
+															  for (i = 0; i < len; i++) {
+															  		var obj=new Object();
+															  		obj.amount=Math.abs(results.rows.item(i).amount);
+															  		obj.name=results.rows.item(i).name;
+															    	alltrans.results.push(obj);
+															    	total=total+Math.abs(results.rows.item(i).amount);
+															  }
+															 alltrans.total=total.toFixed(2);
+															 alltrans.divname=idName;
+															
+															 callback(alltrans,contextObject);	
+												});
+										}
 									 },errorDB);
 									}
 

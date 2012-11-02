@@ -581,7 +581,28 @@ $.when(loading).then(function() {
 										$("#total").data('barChart').showChart('total','#993333', '#339900', value.spent,value.left);
 									})
 
-					var transactions=new Object();
+									var transactions=new Object();
+									transactions.results= new Object();
+									db.transaction(function(db)
+								 				   {
+								 				   		var current_month= (new Date().getMonth()+1)+"";
+								 				   		//alert(current_month);
+								 				   		transactions.results.maxSpend=0;
+								 				   		transactions.results.minSpend=0;
+								 				   		transactions.results.avgSpend=0;
+
+								 				   		get_trans_max_min_avg_by_cat_name_month(db,name,current_month,transactions);
+
+								 						
+								 					},errorDB,function()
+								 				    		  { 
+								 				    		  //	alert(transactions.results.maxSpend);
+								 				    		  	$("#amountMax").text("$"+abbrNum(transactions.results.maxSpend,2));
+								 				    		  	$("#amountMin").text("$"+abbrNum(transactions.results.minSpend,2));
+								 				    		  	$("#amountAvg").text("$"+abbrNum(transactions.results.avgSpend,2));
+								 				    		  }
+								 				   );
+					/*var transactions=new Object();
 					transactions.data= new Array();
 					db.transaction(function(db)
 								 				   {
@@ -597,91 +618,152 @@ $.when(loading).then(function() {
 															 	}
 															 
 															 	$("#lineChart").data('barChart').lineChart('lineChart','#5E87B0',chartValue);
-								 				    		  });	
+								 				    		  });	*/
 					var transactions1=new Object();
 					transactions1.results= new Object();
 					db.transaction(function(db)
 								 				   {
 								 				   		var current_month= (new Date().getMonth()+1)+"";
 								 				   		//alert(current_month);
+								 				   		transactions1.results.perccat=0;
+								 				   		transactions1.results.percothers=0;
 								 						get_trans_perc_by_cat_name_month(db,name,current_month,transactions1);	    
 								 					},errorDB,function()
 								 				    		  { 
-								 				    		  	//alert("test");
-								 				    		  	//alert(transactions1.results.perccat+" "+transactions1.results.percothers);
-								 				    		  		var chartValue1 = [transactions1.results.perccat,transactions1.results.percothers];
-																	$("#pieChart").data('barChart').pieChart('pieChart','#993333', '#339900',chartValue1);
-															  });
+								 				    		 	var pieChart=$("#pieChart");
+																	pieChart.barChart();
+								 				    		 	 if ((isNaN(transactions1.results.perccat))||(transactions1.results.perccat==0))
+																 {
+																 	transactions1.results.perccat=0;
 
-								$("#list").html("");
-								
-									window.localStorage.setItem("current_page",1);
-									var transactions2=new Object();
+																 }
+																 if ((transactions1.results.perccat+"").length==1) 
+																 {
+																 		$("#valueDonutChart").text(transactions1.results.perccat+"%");
+																 		$("#valueDonutChart").css({"font-size":"28px","margin-top":"-90px","margin-left":"30px"});
+																 	
+																 }
+																  
+																 	if ((transactions1.results.perccat+"").length==3)
+																 	{
+																 		//alert("test");
+																 		$("#valueDonutChart").text(transactions1.results.perccat+"%");
+																 		$("#valueDonutChart").css({"font-size":"20px","margin-top":"-85px"});
+																 	}
+																 	if ((transactions1.results.perccat+"").length==2)	 
+																 	{
+																 		//alert("test");
+																 		$("#valueDonutChart").text(transactions1.results.perccat+"%");
+																 		$("#valueDonutChart").css({"font-size":"26px","margin-top":"-90px","margin-left":"26px"});
+																 	}
+																 	
+																 	var chartValue= [[name,transactions1.results.perccat], ['Others',100-transactions1.results.perccat]] ;
+																 
+																	pieChart.data('barChart').pieChart('pieChart','#993333', '#339900',chartValue);
+																	$("#legendPieCat").text(capitaliseFirstLetter(name));
+																	$("#legendPie").show();
+																	
+																 })
+																 
+						var transactions2=new Object();
 									transactions2.results= new Array();
-									$("#list").parent().find(".end").remove();
-									addResultToList(db,transactions2,name,5);
-								
+									window.localStorage.setItem('current_page',1);
 
-									function  addResultToList(db,transactions2,name,itemPerLoad)
-									{
-										db.transaction(function(db)
-								 		{
-							 	  		    var current_page=window.localStorage.getItem("current_page");
-								 			var offset=itemPerLoad*(current_page-1);
-								 			var limit=itemPerLoad;
-								 			get_trans_date_paging_by_cat_name(db,name,offset,limit,transactions2);
-								 			   
-								 		},errorDB,function()
-								 				    {
-								 				 	 var current_page=window.localStorage.getItem("current_page");
-								 		 		  	 var str="";
-								 		 		  		
-								 		 		  		for (var i in transactions2.results)
-								 		 		  		{	
-								 		 		  			//	alert(transactions2.results[i]);
-								 		 		  				var aDate=transactions2.results[i];
-								 		 		  				var idName='collapse'+i+'page'+current_page+'';
-								 		 		  				//alert(transactions2.results[i]);
-											 		 		  	var str='<div data-role="collapsible">'+
-																'<h2 data-icon="false">'+
-																	'<span style="float:left">'+formatDate(aDate)+'</span>'+
-																	'<span style="float:right" id="pricecollapse'+i+'page'+current_page+'"></span>'+
-																'</h2><ul id="collapse'+i+'page'+current_page+'" data-role="listview"></ul></div>'
-																 	  
-																$("#list").append(str).collapsibleset("refresh");
-																
-														 		get_trans_date_by_cat_name_date(db,name,aDate,idName,addToCollapse);
-						
-		 		 		  								}
-		 		 		  								$("#list").parent().find(".loading").remove();
-		 		 		  								$(".loadmore").show();
+									window.localStorage.setItem('itemPerLoad',5);
+									var itemPerLoad=window.localStorage.getItem('itemPerLoad');
+									offset=0,limit=0;
+									var contextObject=$("#cat");	
+									contextObject.find(".list").html("");
+									contextObject.find(".list").parent().find(".end").remove();
+									addResultToList(db,transactions2,name,itemPerLoad,contextObject);
 
-		 		 		  								if (transactions2.results.length==0)
-		 		 		  								{
-															$("#list").parent().append('<div class="end">No more transactions</div>');
-															$(".loadmore").hide();
-		 		 		  								}
-						 				    		});
-						
-									}										
-									var addToCollapse = function (alltrans)
-									{
-										var str="";
-										$("#price"+alltrans.divname).text("$"+alltrans.total+" ("+alltrans.results.length+")");
 
-										for (var i in alltrans.results)
+									contextObject.find(".loadmore").click(function(event){
+										event.preventDefault();
+										event.stopImmediatePropagation();
+										$(this).hide();
+										contextObject.find(".list").parent().append('<div class="loading"><img src="img/spinner.gif" alt="Loading..."/></div>'); 
+											var current_page=parseInt(window.localStorage.getItem("current_page"))+1;
+									 	  	  var transactions2=new Object();
+												transactions2.results= new Array();
+									 			window.localStorage.setItem("current_page",current_page);
+													addResultToList(db,transactions2,name,itemPerLoad,contextObject);
+									})
+
+
+
+
+								function addResultToList (db,transactions2,name,itemPerLoad,contextObject)
 										{
-											str+= '<li data-icon="false" style="overflow:hidden">';
-											str+= '<span style="float:left">'+ capitaliseFirstLetter(alltrans.cat)+'</span>';
-											str+= '<span style="float:right">$'+alltrans.results[i]+'</span>';
-											str+= '</li>'
+
+											transactions2=new Object();
+											transactions2.results= new Array();
+											//alert("test");
+											db.transaction(function(db)
+									 		{
+								 	  		    var current_page=window.localStorage.getItem("current_page");
+									 			var offset=itemPerLoad*(current_page-1);
+									 			//alert(current_page+" "+itemPerLoad);
+									 			var limit=itemPerLoad;
+									 			//alert(current_page);
+									 			get_trans_date_paging_by_cat_name(db,name,offset,limit,transactions2);
+									 			   
+									 		},errorDB,function()
+									 				    {
+									 				    //	alert("finish");
+									 				 	 var current_page=window.localStorage.getItem("current_page");
+									 		 		  	 var str="";
+									 		 		  		
+									 		 		  		for (var i in transactions2.results)
+									 		 		  		{	
+
+									 		 		  			//	alert(transactions2.results[i]);
+									 		 		  				var aDate=transactions2.results[i];
+									 		 		  				var idName='collapse'+i+'page'+current_page+'';
+									 		 		  				//alert(transactions2.results[i]);
+												 		 		  	var str='<div data-role="collapsible">'+
+																	'<h2 data-icon="false">'+
+																		'<span style="float:left">'+formatDate(aDate)+'</span>'+
+																		'<span style="float:right" class="pricecollapse'+i+'page'+current_page+'"></span>'+
+																	'</h2><ul class="collapse'+i+'page'+current_page+'" data-role="listview"></ul></div>'
+																	 	  
+																	contextObject.find(".list").append(str).collapsibleset("refresh");
+																	
+															 		get_trans_date_by_cat_name_date(db,name,aDate,idName,contextObject,addToCollapse);
+							
+			 		 		  								}
+			 		 		  								contextObject.find(".list").parent().find(".loading").remove();
+			 		 		  								contextObject.find(".loadmore").show();
+
+			 		 		  								if (transactions2.results.length==0)
+			 		 		  								{
+																contextObject.find(".list").parent().append('<div class="end">No more transactions</div>');
+																contextObject.find(".loadmore").hide();
+			 		 		  								}
+							 				    		});
+							
+										}										
+										var addToCollapse = function (alltrans,contextObject)
+										{
+											//alert("test");
+											var str="";
+												contextObject.find(".price"+alltrans.divname).text("$"+alltrans.total+" ("+alltrans.results.length+")");
+
+											for (var i in alltrans.results)
+											{
+												str+= '<li data-icon="false" style="overflow:hidden;font-size:10px;color:gray">';
+												str+= '<span style="float:left">'+ capitaliseFirstLetter(alltrans.results[i].name)+'</span>';
+												str+= '<span style="float:right">$'+alltrans.results[i].amount+'</span>';
+												str+= '</li>'
+											}
+								
+											contextObject.find("."+alltrans.divname).append(str);
+											contextObject.find("."+alltrans.divname).listview();
+											contextObject.find("."+alltrans.divname).listview("refresh");
+								
 										}
-							
-										$("#"+alltrans.divname).append(str);
-										$("#"+alltrans.divname).listview();
-										$("#"+alltrans.divname).listview("refresh");
-							
-									}
+
+								
 
 
 				}

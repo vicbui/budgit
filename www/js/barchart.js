@@ -63,17 +63,22 @@
 			jQuery.jqplot (id, [data],
 			{
 				seriesDefaults: {
+									shadow:false,
 			 	 					color: '#666666',
 									// Make this a pie chart.
-									renderer: jQuery.jqplot.PieRenderer,
+									renderer: jQuery.jqplot.DonutRenderer,
 									rendererOptions:{
 								  // Put data labels on the pie slices.
 								 // By default, labels show the percentage of the slice.
-									showDataLabels: true,
+									//showDataLabels: true,
+									//sliceMargin:3
+									//diameter: 100,
+									 startAngle: -90,
+									//   sliceMargin: 3, 
 									highlightMouseOver: false,
 									highlightMouseDown: false,
 									highlightColor: null
-							        		
+							        
 									}
 								},
 				seriesColors: [color1, color2],
