@@ -679,6 +679,8 @@ $.when(loading).then(function() {
 
 
 									contextObject.find(".loadmore").click(function(event){
+							 		/*	alert(name);
+
 										event.preventDefault();
 										event.stopImmediatePropagation();
 										$(this).hide();
@@ -687,9 +689,8 @@ $.when(loading).then(function() {
 									 	  	  var transactions2=new Object();
 												transactions2.results= new Array();
 									 			window.localStorage.setItem("current_page",current_page);
-													addResultToList(db,transactions2,name,itemPerLoad,contextObject);
+													addResultToList(db,transactions2,name,itemPerLoad,contextObject);*/
 									})
-
 
 
 
