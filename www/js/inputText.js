@@ -32,7 +32,7 @@ $.when(loading).then(function() {
 
 
 
-					$("input[name=transTypeCat]",'#'+name+'radioBtns').bind( "click", function(event, ui) {
+					$('input[name="transTypeCat"]','#'+name+'radioBtns').bind( "click", function(event, ui) {
   							//alert("test");
   							elem.focus();
 					});
@@ -552,6 +552,7 @@ $.when(loading).then(function() {
 
 				 				    		  	obj.updateChart(data['cat']);
 
+
 				 				    		  }  
 				 				    );
 
@@ -571,7 +572,7 @@ $.when(loading).then(function() {
 					var value=new Object();
 					value.left="";
 					value.spent="";
-					db.transaction(function(db){
+				/*	db.transaction(function(db){
 
 										get_cat_balance_by_name(db,name,value);
 									},errorDB,function(){
@@ -579,7 +580,7 @@ $.when(loading).then(function() {
 										//this.showChart(name,"#993333","#339900",value.spent,value.left);
 										//alert(value.spent+" "+value.left);
 										$("#total").data('barChart').showChart('total','#993333', '#339900', value.spent,value.left);
-									})
+									})*/
 
 									var transactions=new Object();
 									transactions.results= new Object();
@@ -664,7 +665,8 @@ $.when(loading).then(function() {
 																	$("#legendPie").show();
 																	
 																 })
-																 
+													
+						var data=JSON.parse(window.localStorage.getItem("cat"));					 
 						var transactions2=new Object();
 									transactions2.results= new Array();
 									window.localStorage.setItem('current_page',1);
@@ -672,29 +674,16 @@ $.when(loading).then(function() {
 									window.localStorage.setItem('itemPerLoad',5);
 									var itemPerLoad=window.localStorage.getItem('itemPerLoad');
 									offset=0,limit=0;
-									var contextObject=$("#cat");	
-									contextObject.find(".list").html("");
-									contextObject.find(".list").parent().find(".end").remove();
-									addResultToList(db,transactions2,name,itemPerLoad,contextObject);
+									var contextObject="#cat";
+									window.localStorage.setItem("contextObject",contextObject);	
+									$(contextObject).find(".list").html("");
+									$(contextObject).find(".list").parent().find(".end").remove();
+									//addResultToList(db,transactions2,data.catName,itemPerLoad,contextObject);
+									//alert(data.catName);
+									addResultToList(db,transactions2,data.catName,itemPerLoad,data.day,data.month,data.year,contextObject);
 
 
-									contextObject.find(".loadmore").click(function(event){
-							 		/*	alert(name);
-
-										event.preventDefault();
-										event.stopImmediatePropagation();
-										$(this).hide();
-										contextObject.find(".list").parent().append('<div class="loading"><img src="img/spinner.gif" alt="Loading..."/></div>'); 
-											var current_page=parseInt(window.localStorage.getItem("current_page"))+1;
-									 	  	  var transactions2=new Object();
-												transactions2.results= new Array();
-									 			window.localStorage.setItem("current_page",current_page);
-													addResultToList(db,transactions2,name,itemPerLoad,contextObject);*/
-									})
-
-
-
-								function addResultToList (db,transactions2,name,itemPerLoad,contextObject)
+							/*	function addResultToList (db,transactions2,name,itemPerLoad,contextObject)
 										{
 
 											transactions2=new Object();
@@ -762,7 +751,7 @@ $.when(loading).then(function() {
 											contextObject.find("."+alltrans.divname).listview();
 											contextObject.find("."+alltrans.divname).listview("refresh");
 								
-										}
+										}*/
 
 								
 
@@ -855,7 +844,7 @@ $.when(loading).then(function() {
     						   	 	lastdate=daten;
     						   	 }
     						   
-    						    var transType=$('input[name=transTypeCat]:checked', '#'+name+'radioBtns').val();
+    						    var transType=$('input[name="transTypeCat"]:checked', '#'+name+'radioBtns').val();
     						   	
 
     						   //	 alert($('#resultMsg').html());

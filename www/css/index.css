@@ -15,16 +15,35 @@
  width: 100px;
  height: 45px;
 }
+.bigChart .jqplot-grid-canvas {
+    display: none;
+}
 
+#pieChartInsight .jqplot-data-label{
+	color:white;
+	font-weight: bold;
+
+}
+#pieChartInsight .jqplot-table-legend{
+	font-size: 11px;
+	margin-top: -15px;
+	padding-top: 0px;
+	bottom:0px;
+}
+#pieChartInsight .jqplot-table-legend-label{
+	font-size: 10px;
+}
+/*
 .jqplot-grid-canvas {
     display: none;
 }
+
 .jqplot-yaxis-tick{
 	display: none;	
 }
 .jqplot-xaxis-tick{
 	display: none;	
-}
+}*/
 .jqplot-title{
 	display: none
 }
@@ -32,10 +51,11 @@
 /*	color: white;
 	display: none;*/
 	font-size: 15px;
+	font-weight: bold;
 }
 .jqplot-series-canvas{
 	top:0px;
-}*/
+}
 .ui-dialog.track-dialog .ui-dialog-contain 
 { 
 	margin-top: 10%; 
@@ -58,18 +78,40 @@
     padding-top: 0px;
 
  } 
+
 .radiobtn .ui-btn-inner{
     padding-top: 0px;
     padding-bottom: 0px;
     padding-left: 6px;
     padding-right: 6px;
 }
-.radiobtn .ui-btn-inner{
+
+.ui-btn.radiobtnTime {
+    text-align: left;
+    height: 20px;
+    width: 100%;
+    padding-top:0px;
+
+ } 
+.radiobtnTime .ui-btn-inner{
     padding-top: 0px;
     padding-bottom: 0px;
-    margin-top:  -2px;
-
+    padding-left: 6px;
+    padding-right: 6px;
 }
+.ui-select .ui-btn{
+    height: 22px;
+    /*&idth: 100%;*/
+    padding-top: 0px;
+
+ } 
+.ui-select .ui-btn .ui-btn-inner{
+    padding-top: 3px;
+   /* padding-bottom: 0px;*/
+    /*padding-left: 7px;
+    padding-right: 6px;
+*/
+ } 
 
 .ui-btn-text{
   font-size: 11px;
@@ -195,5 +237,35 @@ height:'70px';
 float:left;
 padding-bottom: 0px;
 padding-top: 0px;
+}
+
+.rotate{
+	transform:rotate(90deg);
+	-ms-transform:rotate(90deg); /* IE 9 */
+	-moz-transform:rotate(90deg); /* Firefox */
+	-webkit-transform:rotate(90deg); /* Safari and Chrome */
+	-o-transform:rotate(90deg); /* Opera */
+}
+
+
+
+.chkcontrol .ui-btn{
+  	height: 20px;
+    /*&idth: 100%;*/
+    padding-top: 0px;
+}
+.chkcontrol .ui-btn-inner{
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+
+.textBoxAsLabel
+{
+   border: none;
+   background-color: #fff;
+   background: transparent;
 }
 
