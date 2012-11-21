@@ -9,8 +9,9 @@ function populateDB(tx){
 	 tx.executeSql('DROP TABLE IF EXISTS TRANS');
 	 //tx.executeSql('DROP TABLE IF EXISTS TRANS_META');
 	 tx.executeSql('DROP TABLE IF EXISTS TRANS_RECURRING');
-	 tx.executeSql('DROP TABLE IF EXISTS BUDGET');
-
+	/* tx.executeSql('DROP TABLE IF EXISTS BUDGET');
+	 tx.executeSql('DROP TABLE IF EXISTS BUDGETITEM');
+*/
 	 tx.executeSql('DROP TABLE IF EXISTS new_elem');
      tx.executeSql('DROP TABLE IF EXISTS sync_info');
      tx.executeSql('DROP TABLE IF EXISTS device');
@@ -21,7 +22,9 @@ function populateDB(tx){
  	 tx.executeSql('CREATE TABLE IF NOT EXISTS CAT (id INTEGER PRIMARY KEY AUTOINCREMENT, name, shared_id TEXT, created_at DATETIME,updated_at DATETIME, UNIQUE(name) ON CONFLICT IGNORE)');
  	 tx.executeSql('CREATE TABLE IF NOT EXISTS TRANS (id INTEGER PRIMARY KEY AUTOINCREMENT, amount,optional,created_at DATETIME,updated_at DATETIME,catid)');
  	 tx.executeSql('CREATE TABLE IF NOT EXISTS TRANS_RECURRING (id INTEGER PRIMARY KEY AUTOINCREMENT, type INTEGER, day INTEGER , month INTEGER ,year INTEGER ,start_date DATETIME,end_date DATETIME,trans_id INTEGER)');
- 	 tx.executeSql('CREATE TABLE IF NOT EXISTS BUDGET (id INTEGER PRIMARY KEY AUTOINCREMENT, budget_limit, balance, created_at DATETIME,updated_at DATETIME,catid)');
+ 	
+ 	 tx.executeSql('CREATE TABLE IF NOT EXISTS BUDGET (id INTEGER PRIMARY KEY AUTOINCREMENT, amount, start_date DATETIME,end_date DATETIME)');
+ 	 tx.executeSql('CREATE TABLE IF NOT EXISTS BUDGETITEM (id INTEGER PRIMARY KEY AUTOINCREMENT, amount ,budgetid,catid)');
  	 tx.executeSql('CREATE TABLE IF NOT EXISTS device (serverid TEXT)');
 
 //monthly_limit,balance,
@@ -46,7 +49,7 @@ tx.executeSql('INSERT INTO CAT (id, name,shared_id, created_at,updated_at) VALUE
 tx.executeSql('INSERT INTO device (serverid) VALUES ("")');  	
 
 
- tx.executeSql('INSERT INTO BUDGET (id,budget_limit, balance, created_at,updated_at,catid) VALUES (1,200.0,200.0,"2012-10-17 06:00:00","2012-10-17 06:00:00",0)');
+ /*tx.executeSql('INSERT INTO BUDGET (id,budget_limit, balance, created_at,updated_at,catid) VALUES (1,200.0,200.0,"2012-10-17 06:00:00","2012-10-17 06:00:00",0)');
  tx.executeSql('INSERT INTO BUDGET (id,budget_limit, balance, created_at,updated_at,catid) VALUES (2,50.0,50.0,"2012-09-17 06:00:00","2012-09-17 06:00:00",0)');
  tx.executeSql('INSERT INTO BUDGET (id,budget_limit, balance, created_at,updated_at,catid) VALUES (3,50.0,50.0,"2012-08-17 06:00:00","2012-08-17 06:00:00",0)');
  tx.executeSql('INSERT INTO BUDGET (id,budget_limit, balance, created_at,updated_at,catid) VALUES (4,200.0,200.0,"2012-10-17 06:00:00","2012-10-17 06:00:00",1)');
@@ -57,7 +60,7 @@ tx.executeSql('INSERT INTO device (serverid) VALUES ("")');
  tx.executeSql('INSERT INTO BUDGET (id,budget_limit, balance, created_at,updated_at,catid) VALUES (8,100.0,100.0,"2012-10-17 06:00:00","2012-10-17 06:00:00",3)');
  tx.executeSql('INSERT INTO BUDGET (id,budget_limit, balance, created_at,updated_at,catid) VALUES (9,28.0,28.0,"2012-10-17 06:00:00","2012-10-17 06:00:00",4)');
  tx.executeSql('INSERT INTO BUDGET (id,budget_limit, balance, created_at,updated_at,catid) VALUES (10,500.0,500.0,"2012-10-17 06:00:00","2012-10-17 06:00:00",5)');
-
+*/
 
 	//alert("tet");
 	var data= new Object(); 
@@ -153,7 +156,7 @@ tx.executeSql('INSERT INTO device (serverid) VALUES ("")');
 
 	data['amount']=-15.0;
 	data['opt']="";
-	data['recurring']=1;
+	data['recurring']=0;
 	data['createdDate']="2012-11-02 06:00:00";
 	data['timestart']=data['createdDate'];
 
@@ -206,21 +209,34 @@ function update_cat_by_id(tx,catid,catname)
 
 }
 
-function get_all_cats(tx,cat)
+function get_cats_by_id(tx,ids,callback)
 {
+	tx.transaction(function(tx){
 
-	cat.results=new Array();
-	tx.executeSql('SELECT * FROM CAT ORDER BY updated_at DESC,name ASC LIMIT 20', [],function (tx, results) {
-				 // alert("test");
+		var cats= new Array();
+
+		var sql="";
+		if (ids=="0")
+		{
+			sql="SELECT * FROM CAT ORDER BY updated_at DESC,name ASC"
+		}
+		else
+		{
+			ids="("+ids+")";
+			sql="SELECT * FROM CAT WHERE id in "+ids+" ORDER BY updated_at DESC,name ASC"
+		}
+		tx.executeSql(sql, [],function (tx, results) {
+					//alert(ids+" "+sql);
+
 		  var len = results.rows.length, i;
 				  
 			for (i = 0; i < len; i++) {
 		   // cats.push(results.rows.item(i).name);
-
-		  	cat.results.push(results.rows.item(i));
-			//alert(cat.results[0]);
+		  	cats.push(results.rows.item(i));
 		  }
-		}, errorDB);
+		  callback(cats);
+		}, errorDB)
+	});
 
 }
 
@@ -520,14 +536,15 @@ function get_budget_by_cat_id(tx,catid,cats)
 {
 	//alerT("test");
 	//alert(cats.totalSpend+" totalspend");
-	
-	tx.executeSql("select a.* from BUDGET a WHERE (a.created_at=(select max(b.created_at) from BUDGET b where b.catid=a.catid)) AND (a.catid=?)" , [catid],function (tx, resultss) {
-		///alert(catid);		
+	catid=catid+"";
+	tx.executeSql("Select * from BUDGETITEM WHERE (catid=?)" , [catid],function (tx, resultss) {
+			
 			if (resultss.rows.length>0)
 			{
 				cats.budget= new Object();
 				cats.budget=resultss.rows.item(0);
-				//alert(cats.budget.budget_limit+" inside lengt");
+			//	alert(resultss.rows.item(0).amount)
+				//alert(cats.budget.amount+" inside lengt");
 			}
 			else
 				cats.budget=-1;
@@ -999,7 +1016,7 @@ function get_budget_by_cat_id_by_month_year(tx,catid,cats,month,year,value,avg)
 	if (catid==-1)
 		catid= "%%";
 	
-	tx.executeSql("select a.* from BUDGET a WHERE (a.updated_at=(select max(b.updated_at) from BUDGET b where (b.catid=a.catid) AND (strftime('%m', date(b.updated_at))=?) AND (strftime('%Y', date(b.updated_at))=?)    )) AND (a.catid like ?)" , [catid,month,year],function (tx, results) {
+	tx.executeSql("select a.* from BUDGET (a.catid like ?)" , [catid],function (tx, results) {
 			
 			if (results.rows.length>0)
 			{
@@ -1105,7 +1122,40 @@ function delete_just_this_trans_by_id(tx,transid,deleteDate,deleteType){
 			
 		})
 
-	
-	
-
 }
+
+function remove_budget(tx,callback)
+{
+
+		tx.transaction(function(tx){
+			tx.executeSql('DELETE FROM BUDGETITEM',[],successDB);
+			tx.executeSql('DELETE FROM BUDGET',[],function(){
+				callback();
+			})
+
+		});	
+}
+
+function add_budget(tx,budgetInfo,budgetItem,callback)
+{
+	tx.transaction(function(tx){
+	tx.executeSql('INSERT INTO BUDGET (amount,start_date,end_date) VALUES (?,?,?)',[budgetInfo.amount,budgetInfo.start_date,budgetInfo.end_date],
+		function(tx,results){
+			//console.log(results.rows.item);
+			//alert(budgetItem.length);	
+			tx.executeSql('SELECT * FROM BUDGET WHERE amount=? and start_date=? and end_date=?',[budgetInfo.amount,budgetInfo.start_date,budgetInfo.end_date],
+				function(tx,results)
+				{
+					var budgetid=results.rows.item(0).id;	
+					//alert(budgetid);
+					for (var i=0;i<budgetItem.length;i++){
+						tx.executeSql('INSERT INTO BUDGETITEM (amount,budgetid,catid) VALUES (?,?,?)',[budgetItem[i].amount,budgetid,budgetItem[i].catid],function(){
+						})
+					}
+				})
+	
+			})
+		},errorDB, function(){	callback() });
+ //amount, start_date DATETIME,end_date DATETIME)
+}
+

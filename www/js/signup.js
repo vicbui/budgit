@@ -1,13 +1,16 @@
-$("#login").live( 'pageshow',function(event, ui){
+$("#register").live( 'pageshow',function(event, ui){
 
 	//alert($("#register").attr('data-needs-auth'));
 
-			$('#loginForm').validate({
+			$('#signupForm').validate({
 				rules: {
+					username: {
+						required:true
+					},
 					email: {
 						required: true,
 						email:true,
-						//remote: "http://localhost:3000/email"
+						remote: "http://localhost:3000/email"
 					},
 					password: {
 						required: true,	
@@ -19,14 +22,14 @@ $("#login").live( 'pageshow',function(event, ui){
 					email: {
 						required: "Email is required",
 						email:"Email address is not valid",
-						//remote: "Email existed"
+						remote: "Email is already existed"
 					}
 				},
 				submitHandler: function(form){
 					jQuery(form).ajaxSubmit({
 						beforeSubmit: showRequest,
 						success: showResponse,
-						url: "http://localhost:3000/login",
+						url: "http://localhost:3000/users.json",
 						type: "post",
 						dataType: "json"
 					});
@@ -44,24 +47,14 @@ $("#login").live( 'pageshow',function(event, ui){
 			 localStorage.setItem('Token', "true");
 			 localStorage.setItem('user', data.user.username);
 			 localStorage.setItem('email',data.user.email);
-			// alert(localStorage.getItem("toPage")+"abc");
-			 if (localStorage.getItem("toPage") != null)
-			 {
-			 	//alert("rewqrewq");
-			 	$.mobile.changePage("#"+localStorage.getItem("toPage"));
-				localStorage.removeItem("toPage");
-
-			 }
-			 else 
-			 {
-			 	$.mobile.changePage("#home");
-			 }	
+			 $.mobile.changePage("#home");
+				
 		}	
 		else
-				{
-					//alert(responseText);
-					$("#result").html("Wrong email or password") ;
-				}
-			}		 
+			{
+				//alert(responseText);
+				$("#result").html("Wrong email or password") ;
+			}
+		}		 
 
 })

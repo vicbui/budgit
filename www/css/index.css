@@ -99,20 +99,18 @@
     padding-left: 6px;
     padding-right: 6px;
 }
-.ui-select .ui-btn{
+
+/* .ui-select .ui-btn{
     height: 22px;
-    /*&idth: 100%;*/
     padding-top: 0px;
 
- } 
+ }
+ 
 .ui-select .ui-btn .ui-btn-inner{
     padding-top: 3px;
-   /* padding-bottom: 0px;*/
-    /*padding-left: 7px;
-    padding-right: 6px;
-*/
+  
  } 
-
+*/
 .ui-btn-text{
   font-size: 11px;
     padding-top: 0px;
@@ -269,3 +267,48 @@ padding-top: 0px;
    background: transparent;
 }
 
+/******validation*****/
+		label.error {
+				color: red;
+				font-size: 16px;
+				font-weight: normal;
+				line-height: 1.4;
+				margin-top: 0.5em;
+				width: 100%;
+				float: none;
+		}
+
+		@media screen and (orientation: portrait){
+				label.error { margin-left: 0; display: block; }
+		}
+
+		@media screen and (orientation: landscape){
+				label.error { display: inline-block; margin-left: 22%; }
+		}
+
+		em { color: red; font-weight: bold; padding-right: .25em; }
+/**********/
+/*
+.ui-btn-active {
+border: 1px solid #2373a5;
+background: #5393c5;
+font-weight: bold;
+color: #fff;
+cursor: pointer;
+text-shadow: 0 1px 1px 
+#3373a5;
+text-decoration: none;
+background-image: -webkit-gradient(linear,left top,left bottom,from( 
+#5393c5 ),to( #6facd5 ));
+background-image: -webkit-linear-gradient( 
+#5393c5, #6facd5 );
+background-image: -moz-linear-gradient( 
+#5393c5, #6facd5 );
+background-image: -ms-linear-gradient( 
+#5393c5, #6facd5 );
+background-image: -o-linear-gradient( 
+#5393c5, #6facd5 );
+background-image: linear-gradient( 
+#5393c5, #6facd5 );
+font-family: Helvetica,Arial,sans-serif;
+}*/
