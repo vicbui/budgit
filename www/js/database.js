@@ -40,12 +40,16 @@ function populateDB(tx){
 function popluateTrans(tx)
 {
 
+
 tx.executeSql('INSERT INTO USER (id, username, email, password,created_at,updated_at) VALUES (1, "VicBui","quangvu88@hotmail.com","Viclihai1521","2012-10-17 06:00:00","2012-10-17 06:00:00")');  	
-tx.executeSql('INSERT INTO CAT (id, name,shared_id, created_at,updated_at) VALUES (1,"clothes","1","2012-10-17 06:00:00","2012-10-17 06:00:00")');
-tx.executeSql('INSERT INTO CAT (id, name,shared_id, created_at,updated_at) VALUES (2,"entertainment","2","2012-10-17 06:00:00","2012-10-17 06:00:00")');
-tx.executeSql('INSERT INTO CAT (id, name,shared_id, created_at,updated_at) VALUES (3,"food","3","2012-10-17 06:00:00","2012-10-17 06:00:00")');
-tx.executeSql('INSERT INTO CAT (id, name,shared_id, created_at,updated_at) VALUES (4,"groceries","4","2012-10-17 06:00:00","2012-10-17 06:00:00")');
-tx.executeSql('INSERT INTO CAT (id, name,shared_id, created_at,updated_at) VALUES (5,"phonebill","5","2012-10-17 06:00:00","2012-10-17 06:00:00")');
+
+tx.executeSql('INSERT INTO CAT (id, name,shared_id, created_at,updated_at) VALUES (1,"ad-hoc","0","2012-10-17 06:00:00","2012-10-17 06:00:00")');
+tx.executeSql('INSERT INTO CAT (id, name,shared_id, created_at,updated_at) VALUES (2,"clothes","1","2012-10-17 06:00:00","2012-10-17 06:00:00")');
+tx.executeSql('INSERT INTO CAT (id, name,shared_id, created_at,updated_at) VALUES (3,"entertainment","2","2012-10-17 06:00:00","2012-10-17 06:00:00")');
+tx.executeSql('INSERT INTO CAT (id, name,shared_id, created_at,updated_at) VALUES (4,"food","3","2012-10-17 06:00:00","2012-10-17 06:00:00")');
+tx.executeSql('INSERT INTO CAT (id, name,shared_id, created_at,updated_at) VALUES (5,"groceries","4","2012-10-17 06:00:00","2012-10-17 06:00:00")');
+tx.executeSql('INSERT INTO CAT (id, name,shared_id, created_at,updated_at) VALUES (6,"phonebill","5","2012-10-17 06:00:00","2012-10-17 06:00:00")');
+
 tx.executeSql('INSERT INTO device (serverid) VALUES ("")');  	
 
 
@@ -69,98 +73,7 @@ tx.executeSql('INSERT INTO device (serverid) VALUES ("")');
 	data['recurring']=4;
 	data['createdDate']="2011-11-03 04:30:00";
 	data['timestart']=data['createdDate'];
-	insertTrans(tx,0,data);
-
-	data['amount']=-21.0;
-	data['opt']="";
-	data['recurring']=1;
-	data['createdDate']="2012-10-25 13:30:00";
-	data['timestart']=data['createdDate'];
-
-	insertTrans(tx,0,data);
-
-
-	data['amount']=-24.0;
-	data['opt']="";
-	data['recurring']=0;
-	data['createdDate']="2012-10-28 06:09:00";
-	data['timestart']=data['createdDate'];
-
-	insertTrans(tx,0,data);
-
-
-
-	data['amount']=-23.0;
-	data['opt']="";
-	data['recurring']=2;
-	data['createdDate']="2012-10-20 12:03:00";
-	data['timestart']=data['createdDate'];
-
-	insertTrans(tx,0,data);
-
-	data['amount']=-1.0;
-	data['opt']="";
-	data['recurring']=0;
-	data['createdDate']="2012-10-29 06:00:00";
-	data['timestart']=data['createdDate'];
-
-	insertTrans(tx,0,data);
-
-	data['amount']=-20.0;
-	data['opt']="";
-	data['recurring']=0;
-	data['createdDate']="2012-10-30 06:00:00";
-	data['timestart']=data['createdDate'];
-
-	insertTrans(tx,0,data);
-
-	data['amount']=-20.0;
-	data['opt']="";
-	data['recurring']=0;
-	data['createdDate']="2012-10-31 06:00:00";
-	data['timestart']=data['createdDate'];
-
-	insertTrans(tx,0,data);
-
-	data['amount']=-20.0;
-	data['opt']="";
-	data['recurring']=0;
-	data['createdDate']="2012-11-01 06:00:00";
-	data['timestart']=data['createdDate'];
-
-	insertTrans(tx,0,data);
-
-	data['amount']=-22.0;
-	data['opt']="";
-	data['recurring']=1;
-	data['createdDate']="2012-10-26 06:45:00";
-	data['timestart']=data['createdDate'];
-
-	insertTrans(tx,0,data);
-
-	data['amount']=-50.0;
-	data['opt']="";
-	data['recurring']=3;
-	data['createdDate']="2012-10-03 06:00:00";
-	data['timestart']=data['createdDate'];
-
-	insertTrans(tx,0,data);
-
-	data['amount']=-30.0;
-	data['opt']="";
-	data['recurring']=2;
-	data['createdDate']="2012-11-03 06:00:00";
-	data['timestart']=data['createdDate'];
-
-	insertTrans(tx,0,data);
-
-	data['amount']=-15.0;
-	data['opt']="";
-	data['recurring']=0;
-	data['createdDate']="2012-11-02 06:00:00";
-	data['timestart']=data['createdDate'];
-
-	insertTrans(tx,1,data);
+	insertTrans(tx,2,data);
 
 	data['amount']=-25.0;
 	data['opt']="";
@@ -168,7 +81,7 @@ tx.executeSql('INSERT INTO device (serverid) VALUES ("")');
 	data['createdDate']="2012-11-01 06:00:00";
 	data['timestart']=data['createdDate'];
 
-	insertTrans(tx,1,data);
+	insertTrans(tx,3,data);
 
 	data['amount']=-34.0;
 	data['opt']="";
@@ -176,7 +89,7 @@ tx.executeSql('INSERT INTO device (serverid) VALUES ("")');
 	data['createdDate']="2012-11-03 07:00:00";
 	data['timestart']=data['createdDate'];
 
-	insertTrans(tx,2,data);
+	insertTrans(tx,4,data);
 
 	data['amount']=-50.0;
 	data['opt']="Eat with friends";
@@ -184,7 +97,7 @@ tx.executeSql('INSERT INTO device (serverid) VALUES ("")');
 	data['createdDate']="2012-11-01 07:00:00";
 	data['timestart']=data['createdDate'];
 
-	insertTrans(tx,2,data);
+	insertTrans(tx,4,data);
 
 
 }
@@ -463,7 +376,7 @@ function catFindIdName(tx,data)
 			{
 
 				catid=results.rows.item(0).id;
-				alert(catid);
+				//alert(catid);
 				var amount=parseFloat(results.rows.item(0).balance);
 				//alert(amount);
 			//	alert(len);
@@ -498,6 +411,28 @@ function updateBalance(tx,tableName,id,column,amount)
 }
 
 /************************************************************/
+
+
+function getAdhocTransaction(tx,trans,cats)
+{
+	//cats.results=new Array();
+		
+		tx.executeSql('SELECT * from BUDGETITEM where catid=? ',["1"],function (tx, results) {
+			var obj=new Object();
+			obj.name="Ad-hoc";
+			obj.totalSpend=0;
+			obj.budget=0;
+			//alert(results)
+			if (results.rows.length>0)
+			{
+				//alert("test");
+				obj.budget=results.rows.item(0).amount;
+			}
+			cats.results=obj;
+		})
+}
+
+
 function getNoTransactionCat(tx,trans,cats)
 {
 	//cats.results=new Array();
@@ -1070,22 +1005,27 @@ function delete_just_this_trans_by_id(tx,transid,deleteDate,deleteType){
 
 	var current_date= new Date(curr_year,curr_month-1,curr_day);
 	//alert(current_date);
+
+
+	var todayDate=convertDatetimeToString(current_date);
 	current_date.setDate(current_date.getDate()-1);
-
 	//var yesterday= current_date.
-
 	var newDate=convertDatetimeToString(current_date);
 
-			var sql="SELECT trans.id, trans.optional ,trans.amount ,trans.catid ,trans_recurring.type,trans_recurring.id as recid, trans_recurring.day,trans_recurring.month,trans_recurring.year,trans.updated_at,trans_recurring.start_date as start_date, trans_recurring.end_date as end_date from TRANS INNER JOIN TRANS_RECURRING ON trans.id=TRANS_RECURRING.trans_id where (trans.id=?) "+
+//alert(transid+" "+newDate);
+			var sql="SELECT trans.id, trans.optional ,trans.amount ,trans.catid ,trans_recurring.type as recurring_type,trans_recurring.id as recid, trans_recurring.day,trans_recurring.month,trans_recurring.year,trans.updated_at,trans_recurring.start_date as start_date, trans_recurring.end_date as end_date from TRANS INNER JOIN TRANS_RECURRING ON trans.id=TRANS_RECURRING.trans_id where (trans.id=?) "+
 				"AND ((date(start_date) <= ?) and ((end_date='*') or (date(end_date) >=?))) ";
 				// alert(newDate);
 				//alert(sql);
-				tx.executeSql(sql, [transid,newDate,newDate],function (tx, results) {		
-//alert("test");
+				tx.executeSql(sql, [transid,todayDate,newDate],function (tx, results) {		
+					
 
 					var len = results.rows.length, i;
+					
+
+
 					var data = new Array();
-					var recurring=results.rows.item(0).type;
+					var recurring=results.rows.item(0).recurring_type;
 					var day=results.rows.item(0).day;
 					var month=results.rows.item(0).month;
 					var year=results.rows.item(0).year;
@@ -1094,31 +1034,29 @@ function delete_just_this_trans_by_id(tx,transid,deleteDate,deleteType){
 					var update_time=results.rows.item(0).updated_at.split(" ")[1];
 					timeStart=timeStart+" "+update_time;
 				
-
 					var timeEnd=results.rows.item(0).end_date;
 
-
 					var trans_id=transid;
-
 				//	alert(results.rows.item(0).recid);
 			
 
-				tx.executeSql('UPDATE TRANS_RECURRING SET end_date=? WHERE (trans_id=?) AND ((date(start_date) <= ?) and ((end_date="*") or (date(end_date) >=?)))', [newDate,transid,newDate,newDate]);
+				tx.executeSql('UPDATE TRANS_RECURRING SET end_date=? WHERE (trans_id=?) AND ((date(start_date) <= ?) and ((end_date="*") or (date(end_date) >=?)))', [newDate,transid,todayDate,newDate]);
 
-
-				if (deleteType ==0)
+				if (recurring!="0")
 				{
-					tx.executeSql('INSERT INTO TRANS_RECURRING (type,day,month,year,start_date,end_date,trans_id) VALUES (?,?,?,?,?,?,?)',
-				[recurring,day,month,year,timeStart,timeEnd,trans_id],successDB,errorDB);
-
-				}
-				else
-					if (deleteType==1)
+					if (deleteType ==0)
 					{
+						tx.executeSql('INSERT INTO TRANS_RECURRING (type,day,month,year,start_date,end_date,trans_id) VALUES (?,?,?,?,?,?,?)',
+					[recurring,day,month,year,timeStart,timeEnd,trans_id],successDB,errorDB);
 
 					}
-					//insertTrans(tx,results.rows.item(0).catid,data);*/
-				
+					else
+						if (deleteType==1)
+						{
+
+						}
+						//insertTrans(tx,results.rows.item(0).catid,data);*/
+				}
 			
 		})
 

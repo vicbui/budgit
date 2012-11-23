@@ -18,6 +18,7 @@
       				'value1'	 : 0,
       				'value2'	 : 0,
       				'isBudget'  :0,
+      				'scale'		:1
     			}, options)
 		//alert(elem);
 		this.setSettings=function(options)
@@ -29,7 +30,8 @@
       				'color2'	 : '#339900',
       				'value1'	 : 0,
       				'value2'	 : 0,
-      				'isBudget'	 : 0
+      				'isBudget'	 : 0,
+      				'scale'		:1
     			}, options)			
 		}
 
@@ -290,6 +292,141 @@
 					
 
 		}
+			this.showProgressBar=function(id,value1,value2,isBudget,scale)
+						{
+													//	alert("test");
+
+							var budget=180*scale;
+							//alert(budget);
+
+							var name="barChart"+id;
+							var idw2=name+"L";
+							var idw=name+"S";
+							var total=value1+value2;
+							var perc1=Math.round(Number((value1/total)*budget));
+							var perc2=Math.round(Number((value2/total)*budget));
+							
+							value1=Math.abs(value1);
+							value2=Math.abs(value2);
+
+							$("#"+name).parent().css("width",budget+"px");
+							$("#"+name).css("width",perc2+"px");
+
+							$("#" + idw).text("$"+abbrNum(value1,2));
+							//$("#" + idw2).text("$"+abbrNum(value2,2));
+
+							if (isBudget==1)
+							{
+									$("div.ui-page-active #" + idw2).text("$"+abbrNum(value2,2));
+							}
+							else
+							{
+									$("div.ui-page-active #" + idw2).text("No Budget Set");
+
+										//alert("Test");
+							}
+
+
+							if (perc2<=0)
+							{
+								//alert("test");
+								//alert($("#" + idw2).parent().html());
+								$("#" + idw2).parent().find(".left").text("Over");
+
+								$("#" + idw2).css("color","red");
+								$("#" + idw2).parent().find(".left").css("color","red");
+								//$("#" + idw2).text("$("+Math.abs(abbrNum(value2,2))+")");
+							}
+							else
+							{
+								$("#" + idw2).parent().find(".left").text("Left");
+
+								$("#" + idw2).css("color","black");
+								$("#" + idw2).parent().find(".left").css("color","black");
+							}
+
+
+							$("#"+name).parent().removeClass();
+							$("#"+name).parent().addClass("progress-bar");
+							$("#"+name).parent().addClass("shine");
+
+							var now = new Date();
+							var totalDays= noDaysInMonth((now.getMonth()+1)+"",now.getFullYear()) ;
+
+							var curr_date = parseInt(now.getDate());
+							var limit=Math.round(curr_date*budget/totalDays);
+							//alert(totalDays);
+							$("#"+name).parent().find(".limitLine").css("width",limit+"px");
+							$("#"+name).parent().find(".dateCirle").css("left",(limit-15)+"px");
+							/*$("#"+name).parent().removeClass();
+							$("#"+name).parent().addClass('progressBar');
+							$("#"+name).parent().addClass('shine');*/
+
+
+							/*limitLine
+							dateCirle*/
+							if (limit >= perc2)
+							{
+								$("#"+name).parent().addClass("red");
+							}
+							else
+							{
+									$("#"+name).parent().addClass("green");
+							}
+
+							/*if (isBudget==1)
+								{
+									$("div.ui-page-active #" + idw2).text("$"+abbrNum(value2,2));
+								}
+								else
+								{
+										$("div.ui-page-active #" + idw2+"Label").text("No budget set");
+										$("div.ui-page-active #" + idw2).text("");
+										//alert("Test");
+								}
+							//alert(value2);	*/
+
+
+							var canvas= $("#"+name).parent();
+							canvas.css("cursor","pointer");
+																	//alert(settings.isBudget+" test");
+
+									//alert(canvas.html());
+									canvas.click(function(){
+										//alert();
+										
+										var data=new Object();
+										data.catName=id;
+										data.spent=value1;
+										data.left=value2;
+										data.isBudget=isBudget;
+
+										var now = new Date();
+
+
+										data.month =now.getMonth()+1+"";
+										data.year = now.getFullYear()+"";
+										data.day =-1;
+										window.localStorage.setItem('cat',JSON.stringify(data));
+										
+										$.mobile.changePage("#cat",{
+														transition: "slideup",
+												reverse: true});
+									})
+							
+						/*	var barChartName=$("div.ui-page-active #"+id).find('.barChartName');
+							barChartName.css("cursor","pointer");
+							
+							//alert(barChartName.html());
+								barChartName.click(function()
+								{
+									//alert("test");
+								})
+								*/
+
+
+						}
+
 		this.showChart=function(id,color1,color2,value1,value2,isBudget)
 		{
 						//	);
@@ -438,7 +575,48 @@
 
 							
 		}
+		this.initProgress = function()
+		{
+			var $this=$(element);
+            	
+          		var spentId="barChart"+settings.id+"S";
+      
+          		var leftId="barChart"+settings.id+"L";
+         		
+         		var catname=settings.id;
+         		var chartname="barChart"+settings.id;
+         		var str='<div style="font-size:15px;padding-top:5px;margin-left:5px">'+
+									'<div style="font-weight:bold;z-index:100;float:left;width:45px;text-align:center"> <div id="'+leftId+'" >$'+settings.value2+ '</div>'+
+											'<div class="left" style="font-size:11px;font-weight:bold;">Left</div>'+
+									'</div>'+
+									'<div style="position:relative;float:left;width:190px;margin-left:5px;">'+
+										
+										'<div style="width:180px;margin-left:12px;margin-top:0px;" class="progress-bar red shine">'+
+										   '<span id="'+chartname+'" style="width: 25%"></span>'+
+										    '<div class="limitLine" style="width:60px">'+
+										 	'</div>'+
+										 	'<div class="dateCirle badgeBlue" style="left:44px">'+
+												'<div class="date ">22<br>Nov</div>'+
+											 '</div>'+
+										'</div>'+
 
+										/*
+										'<div id="'+chartname+'" style="width:180px;height:50px;z-index:0;margin-left:0px;margin-top:-10px;float:left">'+
+										'</div>'+*/
+
+										'<div class="barChartName" style="position:absolute;top:5px;left:20px;font-weight:bold;z-index:200;color:white">'+capitaliseFirstLetter(catname)+'</div>' +
+										
+											
+									'</div>'+
+									'<div style="margin-top:0px;font-weight:bold;z-index:100;float:left;margin-left:5px;width:60px;text-align:center">'+
+										'<div id="'+spentId+'" >$'+settings.value1+ '</div>'+
+										'<div style="font-size:11px;padding-top:0px;margin-top:0px;font-weight:bold;">Spent</div>'+
+									'</div>'+
+							'</div>';
+         			$this.append(str);
+         			this.showProgressBar(settings.id,settings.value1,settings.value2,settings.isBudget,settings.scale);
+
+		}
 		this.init=function()
 		{
 				var $this=$(element);
@@ -451,8 +629,8 @@
          		var chartname="barChart"+settings.id;
          		
          		var str='<div style="font-size:15px;padding-top:5px;margin-left:5px">'+
-									'<div style="font-weight:bold;z-index:100;float:left;width:45px;text-align:center"> <div id="'+spentId+'" >$'+settings.value1+ '</div>'+
-											'<div style="font-size:11px;font-weight:bold;">Spent</div>'+
+									'<div style="font-weight:bold;z-index:100;float:left;width:45px;text-align:center"> <div id="'+leftId+'" >$'+settings.value2+ '</div>'+
+											'<div style="font-size:11px;font-weight:bold;">Left</div>'+
 									'</div>'+
 									'<div style="position:relative;float:left;width:190px" class="smallChart">'+
 										'<div id="'+chartname+'" style="width:180px;height:50px;z-index:0;margin-left:0px;margin-top:-10px;float:left">'+
@@ -466,8 +644,8 @@
 								
 				if (settings.isBudget==1)
 				{
-										str+='<div id="'+leftId+'" >$'+settings.value2+ '</div>'+
-											'<div style="font-size:11px;padding-top:0px;margin-top:0px;font-weight:bold;">Left</div>';
+										str+='<div id="'+spentId+'" >$'+settings.value1+ '</div>'+
+											'<div style="font-size:11px;padding-top:0px;margin-top:0px;font-weight:bold;">Spend</div>';
 				}
 				else
 				{
@@ -479,7 +657,7 @@
 
          		$this.append(str);
 				//alert("test");
-				this.showChart(settings.id,"#993333","#339900",settings.value1,settings.value2,settings.isBudget);
+				this.showChart(settings.id,settings.value1,settings.value2,settings.isBudget);
 	
 
 		}
