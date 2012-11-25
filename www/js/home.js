@@ -70,7 +70,7 @@ $("#home").live( 'pageshow',function(event, ui){
 												//alert("test");
 												loadAllCats();
 												loadAllDashboard();
-											});
+											}, "");
 					 	}
 						
 					 	function length_numbers()
@@ -523,69 +523,7 @@ $("#home").live( 'pageshow',function(event, ui){
 
 
 /*****************************charting*****************************************************/
-						function showProgressBar(id,value1,value2)
-						{
-
-							var name="barChart"+id;
-							var idw2=name+"L";
-							var idw=name+"S";
-							var total=value1+value2;
-							var perc1=Math.round(Number((value1/total)*100));
-							var perc2=Math.round(Number((value2/total)*100));
-
-
-							value1=Math.abs(value1);
-							value2=Math.abs(value2);
-
-							$("#"+name).css("width",perc2+"px");
-							$("#" + idw).text("$"+abbrNum(value1,2));
-							$("#" + idw2).text("$"+abbrNum(Math.abs(value2),2));
-							
-							if (perc2<0)
-							{
-								//alert("test");
-								$("#" + idw2).parent().find(".left").text("Over");
-
-								$("#" + idw2).css("color","red");
-								$("#" + idw2).parent().find(".left").css("color","red");
-								//$("#" + idw2).text("$("+Math.abs(abbrNum(value2,2))+")");
-							}
-							else
-							{
-								$("#" + idw2).parent().find(".left").text("Left");
-
-								$("#" + idw2).css("color","white");
-								$("#" + idw2).parent().find(".left").css("color","white");
-							}
-
-							$("#"+name).parent().removeClass();
-							$("#"+name).parent().addClass("progress-bar");
-							$("#"+name).parent().addClass("shine");
-
-							var now = new Date();
-							var totalDays= noDaysInMonth((now.getMonth()+1)+"",now.getFullYear()) ;
-
-							var curr_date = parseInt(now.getDate());
-							var limit=Math.round(curr_date*100/totalDays);
-							//alert(totalDays);
-							$("#"+name).parent().find(".limitLine").css("width",limit+"px");
-							$("#"+name).parent().find(".dateCirle").css("left",(limit-15)+"px");
-							/*$("#"+name).parent().removeClass();
-							$("#"+name).parent().addClass('progressBar');
-							$("#"+name).parent().addClass('shine');*/
-
-
-							/*limitLine
-							dateCirle*/
-							if (limit >= perc2)
-							{
-								$("#"+name).parent().addClass("red");
-							}
-							else
-							{
-									$("#"+name).parent().addClass("green");
-							}
-						}
+						
 
 
 
@@ -1244,7 +1182,7 @@ $("#home").live( 'pageshow',function(event, ui){
 
 													}
 													else
-														if ((budgetValue==0)||(cats.results[i].name!="Adhoc"))
+														if ((cats.results[i].budget.amount==0)||(cats.results[i].name!="ad-hoc"))
 														{
 															catAdhocTransactions.results.totalSpend+=cats.results[i].totalSpend;
 														}
@@ -1765,3 +1703,66 @@ $("#home").live( 'pageshow',function(event, ui){
 				});
 							
 	})
+function showProgressBar(id,value1,value2)
+						{
+
+							var name="barChart"+id;
+							var idw2=name+"L";
+							var idw=name+"S";
+							var total=value1+value2;
+							var perc1=Math.round(Number((value1/total)*100));
+							var perc2=Math.round(Number((value2/total)*100));
+
+
+							value1=Math.abs(value1);
+							value2=Math.abs(value2);
+
+							$("#"+name).css("width",perc2+"px");
+							$("#" + idw).text("$"+abbrNum(value1,2));
+							$("#" + idw2).text("$"+abbrNum(Math.abs(value2),2));
+							
+							if (perc2<0)
+							{
+								//alert("test");
+								$("#" + idw2).parent().find(".left").text("Over");
+
+								$("#" + idw2).css("color","red");
+								$("#" + idw2).parent().find(".left").css("color","red");
+								//$("#" + idw2).text("$("+Math.abs(abbrNum(value2,2))+")");
+							}
+							else
+							{
+								$("#" + idw2).parent().find(".left").text("Left");
+
+								$("#" + idw2).css("color","white");
+								$("#" + idw2).parent().find(".left").css("color","white");
+							}
+
+							$("#"+name).parent().removeClass();
+							$("#"+name).parent().addClass("progress-bar");
+							$("#"+name).parent().addClass("shine");
+
+							var now = new Date();
+							var totalDays= noDaysInMonth((now.getMonth()+1)+"",now.getFullYear()) ;
+
+							var curr_date = parseInt(now.getDate());
+							var limit=Math.round(curr_date*100/totalDays);
+							//alert(totalDays);
+							$("#"+name).parent().find(".limitLine").css("width",limit+"px");
+							$("#"+name).parent().find(".dateCirle").css("left",(limit-15)+"px");
+							/*$("#"+name).parent().removeClass();
+							$("#"+name).parent().addClass('progressBar');
+							$("#"+name).parent().addClass('shine');*/
+
+
+							/*limitLine
+							dateCirle*/
+							if (limit >= perc2)
+							{
+								$("#"+name).parent().addClass("red");
+							}
+							else
+							{
+									$("#"+name).parent().addClass("green");
+							}
+						}

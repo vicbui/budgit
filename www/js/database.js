@@ -419,7 +419,7 @@ function getAdhocTransaction(tx,trans,cats)
 		
 		tx.executeSql('SELECT * from BUDGETITEM where catid=? ',["1"],function (tx, results) {
 			var obj=new Object();
-			obj.name="Ad-hoc";
+			obj.name="ad-hoc";
 			obj.totalSpend=0;
 			obj.budget=0;
 			//alert(results)
@@ -465,6 +465,31 @@ function getNoTransactionCat(tx,trans,cats)
 						
 				}
 	})
+}
+function get_budget_by_cat_id_callback(tx,trans,callback)
+{
+//	var cats=new Object();
+		//alert("A"+trans.catid+"a");
+		var catid=trans.catid+"";
+
+		tx.executeSql("Select * from BUDGETITEM WHERE (catid=?)" , [catid],function (tx, resultss) {
+			if (resultss.rows.length>0)
+			{
+				alert(trans.catid)
+
+				trans.budget= new Object();
+				trans.budget=resultss.rows.item(0);
+
+			//	alert(resultss.rows.item(0).amount)
+				//alert(cats.budget.amount+" inside lengt");
+			}
+			else
+				trans.budget=-1;
+		
+			callback(trans);
+		})
+
+
 }
 
 function get_budget_by_cat_id(tx,catid,cats)
@@ -1029,15 +1054,41 @@ function delete_just_this_trans_by_id(tx,transid,deleteDate,deleteType){
 					var day=results.rows.item(0).day;
 					var month=results.rows.item(0).month;
 					var year=results.rows.item(0).year;
-					current_date.setDate(current_date.getDate()+2);
-					var timeStart=convertDatetimeToString(current_date);
+					var nextDate=current_date;
+					//current_date.setDate(current_date.getDate()+1);
+					curr_year=parseInt(curr_year);
+					curr_month=parseInt(curr_month);
+					curr_day=parseInt(curr_day);
+					if (recurring==1)
+					{
+
+						nextDate=new Date(curr_year,(curr_month-1),(curr_day+1))
+					}	
+					if (recurring==2)
+					{
+						nextDate=new Date(curr_year,(curr_month-1),(curr_day+7))
+						
+					}
+					if (recurring==3)
+					{
+						nextDate=new Date(curr_year,curr_month,curr_day)
+						
+					}
+					if (recurring==4)
+					{
+						nextDate=new Date((curr_year+1),(curr_month-1),curr_day)
+						
+					}
+					var timeStart=convertDatetimeToString(nextDate);
+
+
+
 					var update_time=results.rows.item(0).updated_at.split(" ")[1];
 					timeStart=timeStart+" "+update_time;
 				
 					var timeEnd=results.rows.item(0).end_date;
 
 					var trans_id=transid;
-				//	alert(results.rows.item(0).recid);
 			
 
 				tx.executeSql('UPDATE TRANS_RECURRING SET end_date=? WHERE (trans_id=?) AND ((date(start_date) <= ?) and ((end_date="*") or (date(end_date) >=?)))', [newDate,transid,todayDate,newDate]);
@@ -1055,7 +1106,6 @@ function delete_just_this_trans_by_id(tx,transid,deleteDate,deleteType){
 						{
 
 						}
-						//insertTrans(tx,results.rows.item(0).catid,data);*/
 				}
 			
 		})

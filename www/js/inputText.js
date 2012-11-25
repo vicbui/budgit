@@ -7,6 +7,8 @@ $.when(loading).then(function() {
 	{
 		var elem=$(element);
 		var obj=this;
+
+
 		var lastdate=new Date("1001/01/01");
 		var symbols= new Object();
 		var last_word,symbol="$";
@@ -19,6 +21,8 @@ $.when(loading).then(function() {
 		var trackDecimal=0;
 		var date_pending=new Object();
 		var final_text;
+		var callback;
+		var callbackBegin;
 
 		//var symbols=["~"];
 		/*var settings = $.extend( {
@@ -157,7 +161,8 @@ $.when(loading).then(function() {
 
 			}
 			obj.switchOnTextScreen();
-
+		//	alert(callbackBegin);
+			//obj.callbackBegin();
 		});
 			    
 		elem.blur(function()
@@ -535,6 +540,8 @@ $.when(loading).then(function() {
 							var created_at=insertDate+" "+curr_hour+":"+curr_min+":"+curr_sec;
 						
 							data['createdDate']=created_at;
+							var recurType=$("#"+name+"selectRecurring").val();
+							data['recurring']=recurType;
 							//searchCatsByName(db,"");
 						//	tst();
 							db.transaction(function(db)
@@ -545,12 +552,17 @@ $.when(loading).then(function() {
 				 				  	
 				 				    },errorDB,function()
 				 				    		  {  	
-				 				    			
+				 				    		  	//alert(data.amount);
+				 				    			if (obj.callback!="")
+				 				    			{
+				 				    				//alert("savetrans and callback");
+				 				    				obj.callback();
+				 				    			}
 				 				    		  	//updateChart();
 				 				    		  	//loadAllDashboard();
 				 				    		  											
 
-				 				    		  	obj.updateChart(data['cat']);
+				 				    		  	//obj.updateChart(data['cat']);
 
 
 				 				    		  }  
@@ -1229,9 +1241,39 @@ $.when(loading).then(function() {
 
 					}
 
+		this.setCallback=function(callback)
+		{
+			obj.callback=callback;
+		}
+		this.setCallbackBegin=function(callback)
+		{
+			obj.callbackBegin=callback;
+		}
 
+		this.populateRecurring=function()
+		{
+			var $this=$(element);
+				//alert("test");
+			var name=($this.attr("id"));
 
-		
+			$("#"+name+"selectRecurring").html("");
+			var selectRecurring=$("#"+name+"selectRecurring");	
+			selectRecurring.trigger("create");
+			selectRecurring.selectmenu();
+			var recurring= ['Never','Daily','Weekly', 'Monthly', 'Yearly'];
+			for (var i=0;i<recurring.length;i++)
+			{
+				var aRecurr= '<option value="'+(i)+'">'+recurring[i]+'</option>';
+				selectRecurring.append(aRecurr);
+			}
+
+			selectRecurring.selectmenu('refresh');
+			
+			/*selectRecurring.bind("change",function(event,ui){
+				$('#').focus();
+				event.stopImmediatePropagation();
+			})*/
+		}
 		this.init=function()
 		{
 				var $this=$(element);
@@ -1240,7 +1282,50 @@ $.when(loading).then(function() {
 				
 
 				elem.parent().find('#'+name+'txtSection').remove();
-				$this.after('<div id="'+name+'txtSection"><div style="clear:both"></div><div id="'+name+'functionBar" style="display:none">'+
+
+
+				$this.after('<div id="'+name+'txtSection"><div style="clear:both"></div>'+
+							'<div id="'+name+'functionBar" style="display:none">'+
+								'<div style="font-size:11px;color:dark-gray; padding-bottom:0px;" id="'+name+'instructionTxt">'+
+									'<div class="navlink ui-grid-a" data-role="none">'+
+										'<div class="ui-block-a scrollable" id="'+name+'resultMsg" style="text-align: left;height:50px"></div>'+	
+											'<div class="ui-block-b scrollable" id="'+name+'errorMsg"  style="color:red;text-align:left;height:50px">'+
+											'</div>'+
+										'</div>'+
+									'</div>'+
+									'<ul id="'+name+'suggestions" data-role="listview" data-inset="true" class="scrollable" style="display:none"> </ul>'+
+									'<div id="'+name+'functionBarTime" style="padding-bottom:0px;display:block;overflow:hidden">'+
+										'<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" id="'+name+'radioBtns" style="float:left;width:40%;padding-top:5px">'+
+													     	'<input type="radio" name="transTypeCat" id="'+name+'radioIncome" value="+" style="font-size:10px; height:0px" />'+
+													     	'<label for="'+name+'radioIncome" class="radiobtn" >Income</label>'+
+													     	'<input type="radio" name="transTypeCat" id="'+name+'radioExpense" value="-" checked="true" style="font-size:10px; height:0px"/>'+
+													     	'<label for="'+name+'radioExpense" class="radiobtn">Expense</label>'+
+										'</fieldset>'+											
+										'<div style="float:right;padding-bottom:5px;width:100px">'+
+										   '<select name="selectRecurring" id="'+name+'selectRecurring" data-theme="c" data-mini="true" data-prevent-focus-zoom="true" >'+
+												'<option value="-1">Recurring</option>'+
+											'</select>'+
+										 '</div>'+
+									'</div>'+
+									'<div style="background-color:lightgray; height:25px;" >'+
+										'<div class="navlink" data-role="none">'+
+											'<div style="width:100%;float:left">'+
+												'<a class="'+name+'links" data-role="none" name="#" href="#" style="float:left;width:20%;"># </a>'+ 
+												'<a class="'+name+'links" data-role="none" name="~"  href="#" style="float:left;width:5%;">~ </a>'+
+												'<div class="navlink" style="text-align: right; margin-top:3px;padding-right:10px;float:left;width:30%;">'+
+													'<input id="'+name+'scroller" name="scroller" style="display:none;" />'+
+													'<a href="#" id="'+name+'dateLnk" style="font-size:16px;color: gray;" >'+
+														'12-20-32'+
+													'</a>'+
+											'</div>'+
+										'</div>'+									
+									'</div>'+				 
+								'</div>'+
+							'</div>'+
+							'</div>');
+
+
+				/*$this.after('<div id="'+name+'txtSection"><div style="clear:both"></div><div id="'+name+'functionBar" style="display:none">'+
             					'<div style="font-size:11px;color:dark-gray; padding-bottom:0px;" id="'+name+'instructionTxt">'+
 									'<div class="navlink ui-grid-a" data-role="none">'+
 										'<div class="ui-block-a scrollable" id="'+name+'resultMsg" style="text-align: left;height:50px"></div>'+
@@ -1265,11 +1350,15 @@ $.when(loading).then(function() {
 										'</div>'+
 									'</div>'+
 								'</div>'+ 
-							'</div></div>');
+							'</div></div>');*/
           		
 			$this.parent().trigger('create');
 			db= openDB();
 			/*date picker */
+
+			this.populateRecurring();
+
+
 						$("#"+name+"scroller").scroller({ 
 													display :'modal',
 													preset : 'date',
@@ -1304,6 +1393,8 @@ $.when(loading).then(function() {
 					//alert("test");
 					//$("#profileCat").hide();
 					//enable nav link
+					obj.callbackBegin(0);
+					$("#"+name+"functionBarTime").show();
 					$("#"+name+"functionBar").show();
 					$("#todayTxtCat").text("E.g: $10 #food or $20 #groceries ~optional text");
 					$.mobile.silentScroll(0);
@@ -1319,6 +1410,8 @@ $.when(loading).then(function() {
 					//refresh chart
 					//$("#profileCat").show();
 					//enable nav link
+					obj.callbackBegin(1);
+					$("#"+name+"functionBarTime").hide();
 					$("#"+name+"functionBar").hide();
 					$("#todayTxtCat").text("Today's transaction");
 					//$("#add").hide();

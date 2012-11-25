@@ -44,6 +44,7 @@
 				var current_page=1;
 				var itemPerLoad=5;
 				var all_cat_static;
+				var addResultCallback="",addResultCallbackResult="";
 			
 				
          // document.addEventListener("deviceready", onDeviceReady, false);
@@ -60,14 +61,13 @@
 					
 				});
 				/****generate list function*****************/
-				function addResultToList (db,transactions2,name,itemPerLoad,day,month,year,contextObject,callback)
+				function addResultToList (db,transactions2,name,itemPerLoad,day,month,year,contextObject,callback,callbackResult)
 						{
-
-															
-
-
-
-											//alert("test");
+											addResultCallback=callback;
+											addResultCallbackResult=callbackResult;
+										/*alert(addResultCallback);	
+										alert(addResultCallbackResult);
+*/
 											transactions2=new Object();
 											transactions2.results= new Array();
 
@@ -90,96 +90,135 @@
 											{
 												lastday =  year+"-"+month+"-"+now.getDate();
 											}
-											//alert(firstday+" "+lastday);
-											//alert(firstday+" "+lastday);
 											listTrans(db,firstday,lastday, function(trans){
+
+											if (addResultCallbackResult!="")
+											{
+												//alert(addResultCallbackResult);
+												addResultCallbackResult(trans);
+											}
+
 												//alert(trans.length);
+											//	if (callbackResult!="")
+												//{
+												//	alert(callbackResult);
+												//	callbackResult(trans);
+												//}
 												if (name=="")
 														name="%";
 
-												for (var i=0;i< trans.length; i++)
+												if (name=="ad-hoc")
 												{
+													db.transaction(function(db){
+															for (var i=0;i<trans.length;i++)
+															{
+																get_budget_by_cat_id_callback(db,trans[i],function(transBudget){
+																	//
+																	if (transBudget.budget ==-1 || transBudget.budget.amount==0)
+																	{
+																		if (typeof transactions2.results[transBudget.current_date] ==="undefined")
+																		transactions2.results[transBudget.current_date]=new Array();
+																		transactions2.results[transBudget.current_date].push(transBudget);
+																	}
+																});
+															}
+														},errorDB,function(){
+															addToListview(transactions2);
+
+														})
+
+													
+												}
+												else
+												{
+													for (var i=0;i< trans.length; i++)
+													{
+
+															
+														if (((trans[i].name==name) && (name!="%")) || (name=="%"))
+														{
+
+															if (typeof transactions2.results[trans[i].current_date] ==="undefined" )	
+																transactions2.results[trans[i].current_date]=new Array();
+																transactions2.results[trans[i].current_date].push(trans[i]);
+															//console.log(trans[i].current_date+" "+trans[i].name+" "+trans[i].amount);
 														
-													if (((trans[i].name==name) && (name!="%")) || (name=="%"))
-													{
-
-														if (typeof transactions2.results[trans[i].current_date] ==="undefined" )	
-															transactions2.results[trans[i].current_date]=new Array();
-															transactions2.results[trans[i].current_date].push(trans[i]);
-														//console.log(trans[i].current_date+" "+trans[i].name+" "+trans[i].amount);
+														}
+													}
 													
-													}
-												}
-												var results= new Array();
-												for (var date in transactions2.results)
-												{
-													obj=new Object();
-													obj.date=date;
-													obj.trans=transactions2.results[date];
-													var amount=0;
-													for (var j=0;j<transactions2.results[date].length;j++)
-													{
-														amount=amount+Math.abs(transactions2.results[date][j].amount);
-													}
-													obj.amount=amount;
-													results.push(obj);
-												
-												}
-												results.sort(function(a,b) { return  b.date -a.date} );
-												//alert(results[0].date);
-												$(contextObject).find(".list").html("");
-												$(contextObject).find(".list").collapsibleset();
-
-												//console.log("init collapse")
-												for (var i=0;i<results.length;i++)
-												{
-													//console.log(results[i].date+" "+results[i].trans.length);
-													var aDate=convertUnixToString(results[i].date);
-													var idName='collapse'+i+'page'+current_page+'';
-													var str='<div data-role="collapsible">'+
-																	'<h2 data-icon="false">'+
-																		'<span style="float:left">'+formatDate(aDate)+'</span>'+
-																		'<span style="float:right" class="pricecollapse'+i+'page'+current_page+'"></span>'+
-																	'</h2>'+	
-																	'<span style="float:left" class="dateSelected">'+aDate+'</span>'+
-																	'<ul class="collapse'+i+'page'+current_page+'"data-role="listview"></ul></div>'
-																	
-													//console.log(str);
-													$(contextObject).find(".list").append(str);
-													$(contextObject).find(".list").collapsibleset("refresh");
-													$(contextObject).find(".price"+idName).text("$"+results[i].amount);
-													var string="";
-													for (var ii in results[i].trans)
-													{
-														//console.log(results[i].trans[ii].id);
-														var optional="<br>"+results[i].trans[ii].optional;
-														string+= '<li class="itemDetails" data-icon="false" style="overflow:hidden;font-size:11px;color:gray">';
-														string+= '<span style="float:left">'+ capitaliseFirstLetter(results[i].trans[ii].name)+optional+'</span><span id="transId" style="display:none">'+results[i].trans[ii].id+"id"+i+'</span>';
-														string+= '<span valign="top" style="float:right">$'+Math.abs(results[i].trans[ii].amount)+'<div id="edit_delete'+results[i].trans[ii].id+"id"+i+'" class="edit_delete" style="padding-left:5px;display:none;float:right">test</div></span>';
-														string+= '</li>'
-													
-													//	$('.edit_delete'+alltrans.results[i].transid)
-
-													}
-
-													$(contextObject).find("."+idName).html(string);
-													$(contextObject).find("."+idName).listview();
-													$(contextObject).find("."+idName).listview("refresh");
-												
+													addToListview(transactions2);
 
 												}
 
-												//console.log($("#transDetails").html());
-
-											/***********************************/	
 												$('html').click(function() {
 												 //Hide the menus if visible
 												 	//alert("Test");
 												 	$(".edit_delete").hide();
 												 });
+
+												//alert(callback);
+												function addToListview(transactions2)
+												{
+													var results= new Array();
+													for (var date in transactions2.results)
+													{
+														obj=new Object();
+														obj.date=date;
+														obj.trans=transactions2.results[date];
+														var amount=0;
+														for (var j=0;j<transactions2.results[date].length;j++)
+														{
+															amount=amount+Math.abs(transactions2.results[date][j].amount);
+														}
+														obj.amount=amount;
+														results.push(obj);
+													
+													}
+													results.sort(function(a,b) { return  b.date -a.date} );
+													//alert(results[0].date);
+													$(contextObject).find(".list").html("");
+													$(contextObject).find(".list").collapsibleset();
+
+													//console.log("init collapse")
+													for (var i=0;i<results.length;i++)
+													{
+														//console.log(results[i].date+" "+results[i].trans.length);
+														var aDate=convertUnixToString(results[i].date);
+														var idName='collapse'+i+'page'+current_page+'';
+														var str='<div data-role="collapsible">'+
+																		'<h2 data-icon="false">'+
+																			'<span style="float:left">'+formatDate(aDate)+'</span>'+
+																			'<span style="float:right" class="pricecollapse'+i+'page'+current_page+'"></span>'+
+																		'</h2>'+	
+																		'<span style="float:left" class="dateSelected">'+aDate+'</span>'+
+																		'<ul class="collapse'+i+'page'+current_page+'"data-role="listview"></ul></div>'
+																		
+														//console.log(str);
+														$(contextObject).find(".list").append(str);
+														$(contextObject).find(".list").collapsibleset("refresh");
+														$(contextObject).find(".price"+idName).text("$"+results[i].amount);
+														var string="";
+														for (var ii in results[i].trans)
+														{
+															//console.log(results[i].trans[ii].id);
+															var optional="<br>"+results[i].trans[ii].optional;
+															string+= '<li class="itemDetails" data-icon="false" style="overflow:hidden;font-size:11px;color:gray">';
+															string+= '<span style="float:left">'+ capitaliseFirstLetter(results[i].trans[ii].name)+optional+'</span><span id="transId" style="display:none">'+results[i].trans[ii].id+"id"+i+'</span>';
+															string+= '<span valign="top" style="float:right">$'+Math.abs(results[i].trans[ii].amount)+'<div id="edit_delete'+results[i].trans[ii].id+"id"+i+'" class="edit_delete" style="padding-left:5px;display:none;float:right">test</div></span>';
+															string+= '</li>'
+														
+														//	$('.edit_delete'+alltrans.results[i].transid)
+
+														}
+
+														$(contextObject).find("."+idName).html(string);
+														$(contextObject).find("."+idName).listview();
+														$(contextObject).find("."+idName).listview("refresh");
+													
+													}
+												}
 												function refreshTransDetails()
 												{
-
 
 
 															var transactions2=new Object();
@@ -198,18 +237,32 @@
 
 														var contextObject=window.localStorage.getItem('contextObject')
 														var popup="";
+														//alert(contextObject);
+														//alert(callback);
 														if (contextObject=="#transDetails")
 														{
-															addResultToList(db,transactions2,"",itemPerLoad,-1,now.getMonth()+1+"",now.getFullYear(),contextObject);
+														//	alert("test");
+														
+															addResultToList(db,transactions2,"",itemPerLoad,-1,now.getMonth()+1+"",now.getFullYear(),contextObject,addResultCallback,addResultCallbackResult);
+
 														}
 														else
 															if (contextObject=="#cat")
 															{
+																
+																//alert(callbackResult);
+																//alert(callback);
 																var data=JSON.parse(window.localStorage.getItem("cat"));
-																addResultToList(db,transactions2,data.catName,itemPerLoad,data.day,data.month,data.year,contextObject)
-															}
+																addResultToList(db,transactions2,data.catName,itemPerLoad,data.day,data.month,data.year,contextObject,addResultCallback,addResultCallbackResult);
 
-													callback();
+															}
+														//alert(addResultCallback);
+														if (addResultCallback!="")
+															{
+																//alert(addResultCallback);
+																addResultCallback();
+															}
+													//alert(callback);
 															
 												}
 												$('.recurringDelete').click(function(e){
@@ -218,7 +271,7 @@
 													var transid=str.substring(0,str.indexOf("i"));
 													var deleteDate=$(this).parent().find("#deleteTransDate").text();
 													//alert(deleteDate);
-
+													//alert($(this).parent().parent().parent().html());
 													if ($(this).attr("id")=="0")
 													{
 														//alert(transid+" "+deleteDate);
@@ -285,7 +338,7 @@
 													e.preventDefault();
 													e.stopImmediatePropagation();
 												})
-											/***********************************/
+
 													$('.itemDetails').bind("click",function(event1){
 														event1.preventDefault();
 														var contextObject=window.localStorage.getItem('contextObject')
@@ -304,6 +357,7 @@
 																deleteObj.html('<a class="delete"><img src="img/delete.png" alt="delete" width="12px" height="12px" style="margin-top:0px"/></a>');
 
 																deleteObj.bind("click",function(event1){
+
 																			var transactions2=new Object();
 																			transactions2.results= new Array();	
 																		//	alert($(this).parent().parent().html());				
@@ -344,7 +398,7 @@
 
 											});
 										
-							
+
 										}										
 										var addToCollapse = function (alltrans,contextObject)
 										{
@@ -1372,12 +1426,7 @@
 
 																								
 													</fieldset>	
-												<!--	<fieldset data-role="controlgroup" data-mini="true" class="chkcontrol" data-type="horizontal">
-																														
-															<input type="checkbox" name="chkRecurring" id="chkRecurring" class="custom" />
-															<label for="chkRecurring">Recurring</label>
-																								 
-													</fieldset> -->
+										
 													<div style="float:right;padding-bottom:5px;width:100px">
 												        <select name="selectRecurring" id="selectRecurring" data-theme="c" data-mini="true" data-prevent-focus-zoom="true" >
 												        	<option value="-1">Recurring</option>
@@ -1519,9 +1568,9 @@
 		<div data-role="page" id="cat">
 		
 			<div data-role="header" data-theme="b" style="height:30px;">
-
-				<a data-icon="delete" data-inline="true"  data-mini="true" data-iconpos="notext" href="index.html" style="margin-top:-3px">Delete</a>
-				<h1 style="margin-top:4px">Budgit</h1>
+				<a id="cancelCatBtn" data-icon="delete" data-inline="true"  data-mini="true" data-iconpos="notext" style="margin-top:-3px; display:none">Delete</a>
+				<a id="deleteCatBtn" data-icon="delete" data-inline="true"  data-mini="true" data-iconpos="notext" data-rel="back" style="margin-top:-3px">Delete</a>
+				<h1 style="margin-top:-15px">Budgit</h1>
 				<a id="add" data-icon="plus"  data-inline="true"  data-mini="true" class="ui-btn-right" data-iconpos="notext" style="margin-top:-3px">Post</a>
 				
 			</div>
@@ -1541,16 +1590,39 @@
 							</div>
 
 					</div>	
-				<div id="profileCat" style="height:80px; background-color:gray;color:white;padding:5px 0px 5px 10px;" class="ui-body ui-body-a">
+				<div id="profileCat" style="height:80px; background-color:gray;color:white;padding:5px 0px 5px 10px;" class="ui-body ui-body-a profileHide">
 						<div style ="overflow: hidden;width: 100%;">
 							<div style="float:left;height:60px;width:60px;text-align:center;padding:5px" class="badgeBlue">
 									<div id="dateLeft" style="font-size:40px">10</div> 
 									<div style="font-size:12px">days left</div>
 							</div>
-							<div style="padding:5px 0px 0px 10px;float:left">
+							<div style="padding:5px 0px 0px 10px;float:left" id="total">
 
 								<h4 style="padding:0px 0px 5px 0px;margin:0px 0px 0px 0px" id="catTitle">Food </h4>
-								<div style="float:left;padding-right:10px">
+								
+									<div style="font-size:14px;color:white;font-weight:bold;z-index:100;float:left;width:45px;text-align:center"> <div id="barCharttotalL" >$13 </div>
+											<div class="left" style="font-size:11px;font-weight:bold;">Left</div>
+									</div>
+									<div style="float:left;width:120px" class="bigChart">
+									<!--	<div id="barChartbalance" style="height:50px;width:120px;z-index:0;margin-left:-3px;margin-top:-10px;float:left;display:none">
+											</div> -->
+										<div style="width:100px;margin-left:12px;margin-top:0px;" class="progress-bar red shine">
+										    <span id="barCharttotal" style="width: 25%"></span>
+										    <div class="limitLine" style="width:60px">
+										 	</div>
+										 	 <div class="dateCirle badgeBlue" style="left:44px">
+												<div class="date ">22<br>Nov</div>
+											 </div>
+										
+										</div>
+											
+									</div>
+
+									<div style="margin-top:0px;font-size:14px;color:white;font-weight:bold;z-index:100;float:left;width:50px;text-align:center"><div id="barCharttotalS" >$15 </div>
+											<div style="font-size:11px;padding-top:0px;margin-top:0px;font-weight:bold;">Spent</div>
+									</div>
+
+							<!--	<div style="float:left;padding-right:10px">
 						
 									<div id="total" style="padding-top:0px;margin-left:0px">
 
@@ -1570,7 +1642,7 @@
 
 									
 										</div>
-								</div>
+								</div> -->
 							</div>
 							
 							
@@ -1589,7 +1661,7 @@
 						<!-- <div style="font-size:13px;font-weight:bold;color:gray;text-align:center;clear:both">
 							Monthly Summary 
 						</div> -->
-						<div class="ui-grid-a" style ="overflow: hidden;width: 100%;padding-bottom:5px">
+						<div class="ui-grid-a profileHide" style ="overflow: hidden;width: 100%;padding-bottom:5px">
 
 							<div class="ui-block-a" style="padding-left:5px;margin-top:15px;" >
 								<!--<div id="lineChart" style="height:200px;width:180px;font-size:16px;margin-left:-16px; margin-top:-5px"></div>
@@ -1630,7 +1702,7 @@
 					
 						<div style="padding-top:5px;padding-left:5px; text-align:center">
 						
-						<div data-role="collapsible-set" data-theme="c" data-content-theme="d" data-collapsed-icon="arrow-r" data-expanded-icon="arrow-d" data-inset="true" class="list">
+						<div data-role="collapsible-set" data-theme="c" data-content-theme="d" data-collapsed-icon="arrow-r" data-expanded-icon="arrow-d" data-inset="true" class="list profileHide">
 						
 							
 						</div>
@@ -1972,7 +2044,7 @@
 <!-- Experiement page -->
 
 
-
+	<script src="js/webSqlSync.js" type="text/javascript"></script>
 	<script src="js/sync.js" type="text/javascript"></script>	
 	<script type="text/javascript" src="js/database.js"></script>
 	<script src="js/mobiscroll.js" type="text/javascript"></script>
@@ -1990,16 +2062,15 @@
 	<script type="text/javascript" src="js/jqmcharts/jqplot.canvasAxisTickRenderer.min.js"></script>
 	<script type="text/javascript" src="js/jqmcharts/jqplot.canvasOverlay.min.js"></script>
 
-	
-	<script src="js/cat.js" type="text/javascript"></script>
-	<script src="js/barchart.js" type="text/javascript"></script>
 	<script src="js/inputText.js" type="text/javascript"></script>
-	<script src="js/webSqlSync.js" type="text/javascript"></script>
+	<script src="js/barchart.js" type="text/javascript"></script>
+
+	<script src="js/home.js" type="text/javascript"></script>
+	<script src="js/cat.js" type="text/javascript"></script>
 
 
 	<script src="js/jquery.validate.js" type="text/javascript"></script>	
 	<script src="js/jquery.form.js" type="text/javascript"></script>	
-	<script src="js/home.js" type="text/javascript"></script>
 	<script src="js/login.js" type="text/javascript"></script>
 	<script src="js/signup.js" type="text/javascript"></script>
 	<script src="js/auth.js" type="text/javascript"></script>
