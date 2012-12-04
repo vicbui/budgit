@@ -291,7 +291,45 @@ padding-top: 0px;
 			font-size: 50px;
 		}
 /**********/
+
+.ui-btn.my-btn{
+	position : absolute;
+	background: #5E87B0;
+	left:40%;
+    bottom   : 0px;
+    	    height   : 40px;
+	        width    : 22%;
+	        z-index  : 11;
+	/*height: 40px;*/
+
+	/* color      : green;
+    background : red;*/
+   -webkit-border-top-right-radius : 10px;
+       -moz-border-top-right-radius : 10px;
+            border-top-right-radius : 10px;
+    -webkit-border-top-left-radius  : 10px;
+       -moz-border-top-left-radius  : 10px;
+            border-top-left-radius  : 10px;
+            -webkit-background-clip : padding-box;
+      
+             -webkit-box-shadow : 0 -1px 5px #000;
+      
+               /*this adds box shadow to the active nav item*/
+
+}
+.ui-btn.my-btn .ui-btn-inner{
+	font-size: 18px;
+}
+.ui-btn.my-btn .ui-btn-inner .ui-btn-text{
+	font-size: 14px;
+}
+.ui-mobile .ui-page .ui-footer .ui-navbar{
+    overflow : visible;
+    height: 30px;
+}​	
 /*
+
+
 .ui-btn-active {
 border: 1px solid #2373a5;
 background: #5393c5;
@@ -315,3 +353,7 @@ background-image: linear-gradient(
 #5393c5, #6facd5 );
 font-family: Helvetica,Arial,sans-serif;
 }*/
+
+/*** big bottom button*******************/
+
+

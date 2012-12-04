@@ -40,17 +40,17 @@
 			/*alert(min+" "+(min+max)/data.length);
 			if (min< (min+max)/data.length)
 				min=0;*/
+			//alert(data);
 		var plot1=	$.jqplot (id, [data,maxData,minData],
 								{
 									
 									seriesDefaults: {
 														//   linePattern: 'dashed',
-      													//shadow:false,
-      													 shadow: true, 
+      													 shadow: false, 
 
-														lineWidth:1,
+														lineWidth:2,
 														 rendererOptions: {
-												          smooth: true
+												         // smooth: true
 												        },
 														pointLabels: { 
 													    show: false,
@@ -60,9 +60,9 @@
 													  	       // showMarker:false,
 													 	  markerOptions: {
 												            show: true,             // wether to show data point markers.
-												            style: 'circle',  // circle, diamond, square, filledCircle.
-												            lineWidth: 1,       // width of the stroke drawing the marker.
-												            size: 5,            // size (diameter, edge length, etc.) of the marker.
+												            style: 'filledCircle',  // circle, diamond, square, filledCircle.
+												            //lineWidth: 2,       // width of the stroke drawing the marker.
+												           // size: 5,            // size (diameter, edge length, etc.) of the marker.
 												            //color: '#666666',    // color of marker, set to color of line by default.
 												           shadow:false
 												         }
@@ -151,9 +151,10 @@
 								    },
 									axes:{
 											xaxis: {
+											 		//label: data.length+" Days",
 												   renderer:$.jqplot.DateAxisRenderer,
 													  //autoscale:true,
- 													min:(minDate),max:(maxDate),pad: 0,
+ 													min:(minDate),max:(maxDate),pad: 1.2,
  													//pad:0.5,
 											          tickOptions: {
 															         showGridline: false,
@@ -167,13 +168,11 @@
 															        },
 													},
 											yaxis: {
-												 		//min:min,
-												 		pad: 0,
-
+												 		min:min,max: max, pad:0,
 														tickOptions: {
 															          showGridline: false,
 															          showMark: false,
-															          formatString: '$%.0f '
+															          formatString: '$%.2f '
 															         /* fontFamily: 'DosisBold',
 															          textColor: '#ffffff',
 															          fontSize: 'larger',
@@ -358,6 +357,16 @@
 							//alert(totalDays);
 							$("#"+name).parent().find(".limitLine").css("width",limit+"px");
 							$("#"+name).parent().find(".dateCirle").css("left",(limit-15)+"px");
+
+							var curr_month=now.getMonth();
+
+							var day=curr_date+"";
+							if (day.length==1)
+							{
+								day="0"+day;
+							}
+							$("#"+name).parent().find(".dateCirle").find(".date").text(day+" "+getMonthNames(curr_month));
+
 							/*$("#"+name).parent().removeClass();
 							$("#"+name).parent().addClass('progressBar');
 							$("#"+name).parent().addClass('shine');*/

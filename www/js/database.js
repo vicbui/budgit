@@ -70,15 +70,23 @@ tx.executeSql('INSERT INTO device (serverid) VALUES ("")');
 	var data= new Object(); 
 	data['amount']=-21.0;
 	data['opt']="";
-	data['recurring']=4;
-	data['createdDate']="2011-11-03 04:30:00";
+	data['recurring']=3;
+	data['createdDate']="2012-11-02 04:30:00";
 	data['timestart']=data['createdDate'];
 	insertTrans(tx,2,data);
 
 	data['amount']=-25.0;
 	data['opt']="";
 	data['recurring']=0;
-	data['createdDate']="2012-11-01 06:00:00";
+	data['createdDate']="2012-12-01 06:00:00";
+	data['timestart']=data['createdDate'];
+
+	insertTrans(tx,3,data);
+
+	data['amount']=-25.0;
+	data['opt']="";
+	data['recurring']=0;
+	data['createdDate']="2012-12-03 06:00:00";
 	data['timestart']=data['createdDate'];
 
 	insertTrans(tx,3,data);
@@ -86,7 +94,7 @@ tx.executeSql('INSERT INTO device (serverid) VALUES ("")');
 	data['amount']=-34.0;
 	data['opt']="";
 	data['recurring']=0;
-	data['createdDate']="2012-11-03 07:00:00";
+	data['createdDate']="2012-12-03 07:00:00";
 	data['timestart']=data['createdDate'];
 
 	insertTrans(tx,4,data);
@@ -94,7 +102,7 @@ tx.executeSql('INSERT INTO device (serverid) VALUES ("")');
 	data['amount']=-50.0;
 	data['opt']="Eat with friends";
 	data['recurring']=3;
-	data['createdDate']="2012-11-01 07:00:00";
+	data['createdDate']="2012-12-01 07:00:00";
 	data['timestart']=data['createdDate'];
 
 	insertTrans(tx,4,data);
@@ -157,14 +165,14 @@ function getCats(tx,cat)
 {
 
 	cat.results=new Array();
-	tx.executeSql('SELECT name FROM CAT ORDER BY updated_at DESC,name ASC LIMIT 20', [],function (tx, results) {
+	tx.executeSql('SELECT id,name FROM CAT ORDER BY updated_at DESC,name ASC LIMIT 20', [],function (tx, results) {
 				 // alert("test");
 		  var len = results.rows.length, i;
 				  
 			for (i = 0; i < len; i++) {
 		   // cats.push(results.rows.item(i).name);
 
-		  	cat.results.push(results.rows.item(i).name);
+		  	cat.results.push(results.rows.item(i));
 			//alert(cat.results[0]);
 		  }
 		}, errorDB);
@@ -475,7 +483,7 @@ function get_budget_by_cat_id_callback(tx,trans,callback)
 		tx.executeSql("Select * from BUDGETITEM WHERE (catid=?)" , [catid],function (tx, resultss) {
 			if (resultss.rows.length>0)
 			{
-				alert(trans.catid)
+				//alert(trans.catid)
 
 				trans.budget= new Object();
 				trans.budget=resultss.rows.item(0);

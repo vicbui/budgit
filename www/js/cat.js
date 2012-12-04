@@ -84,6 +84,52 @@ $("#cat").live( 'pageshow',function(event, ui){
 			$("#legendPie").show();
 
 	}
+	function updateDonutChart(totalCat)
+	{
+		//alert(totalCat);
+		var now=new Date();
+		var firstday = now.getFullYear()+ "-" + (now.getMonth()+1)+ "-"+"01";
+		var lastday = now.getFullYear() + "-" + (now.getMonth()+1)+ "-"+now.getDate();
+		listTrans(db,firstday,lastday,function(trans){
+			
+			var total=0;
+			for (var i=0; i<trans.length;i++)
+			{
+				total=total+Math.abs(trans[i].amount);
+			}
+			var percentage=Math.round(totalCat/total*100);
+			var donutChart=$("#donutChart");
+			donutChart.barChart();
+			if ((isNaN(percentage))||(percentage==0))
+			{
+				percentage=0;
+			}
+			 if ((percentage+"").length==1) 
+			 {
+					$("#valueDonutChart").text(percentage+"%");
+			 		$("#valueDonutChart").css({"font-size":"28px","margin-top":"-90px","margin-left":"30px"}); 	
+			 }
+			 else 
+				if ((percentage+"").length==3)
+				{
+			 		$("#valueDonutChart").text(percentage+"%");
+					$("#valueDonutChart").css({"font-size":"21px","margin-top":"-88px","margin-left":"22px"});
+				}
+				else	 
+				{
+					$("#valueDonutChart").text(percentage+"%");
+					$("#valueDonutChart").css({"font-size":"26px","margin-top":"-90px","margin-left":"26px"});
+				}
+
+			var chartValue= [["main",100-percentage], ['Others',percentage]];
+			donutChart.data('barChart').donutChart('donutChart','#993333', '#339900',chartValue);
+			$("#legendPieCat").text(capitaliseFirstLetter(data.catName));
+			$("#legendPie").show();
+			
+		})
+														
+
+	}
 	function initTransDetails()
 	{
 		var data=JSON.parse(window.localStorage.getItem("cat"));
@@ -108,7 +154,7 @@ $("#cat").live( 'pageshow',function(event, ui){
 			var total=0;
 			if (trans.length>0)
 			{
-				var max=Math.abs(trans[0].amount),min=Math.abs(trans[0].amount),average=0,count=0;
+				var max=0,min=1000000,average=0,count=0;
 
 
 				if (data.catName=="ad-hoc")
@@ -135,6 +181,7 @@ $("#cat").live( 'pageshow',function(event, ui){
 					},errorDB,function(){
 						average=total/count;
 						updateDashboard(average,max,min,total);
+						updateDonutChart(total);
 					})
 				}
 				else
@@ -154,9 +201,10 @@ $("#cat").live( 'pageshow',function(event, ui){
 						}
 				
 					}
+					//alert(max);
 					average=total/count;
 					updateDashboard(average,max,min,total);
-				
+					updateDonutChart(total);
 
 				}
 
