@@ -161,6 +161,22 @@ function get_cats_by_id(tx,ids,callback)
 
 }
 
+function getCatsName(tx,cat)
+{
+
+	cat.results=new Array();
+	tx.executeSql('SELECT name FROM CAT ORDER BY updated_at DESC,name ASC LIMIT 20', [],function (tx, results) {
+				 // alert("test");
+		  var len = results.rows.length, i;
+				  
+			for (i = 0; i < len; i++) {
+		   // cats.push(results.rows.item(i).name);
+
+		  	cat.results.push(results.rows.item(i).name);
+			//alert(cat.results[0]);
+		  }
+		}, errorDB);
+}
 function getCats(tx,cat)
 {
 

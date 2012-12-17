@@ -52,13 +52,14 @@ $("#cat").live( 'pageshow',function(event, ui){
 	{			
 			
 		showProgressBar("total",spent,left);
-		$("#dateLeft").text(daysInMonth());	
+		$("#catTitle").text(capitaliseFirstLetter(name));
+		/*$("#dateLeft").text(daysInMonth());	
 		$("#catTitle").text(capitaliseFirstLetter(name));
 		$("#catLbl").text("#"+name);
 		$("#cat_track_area").inputText();
 		$("#cat_track_area").data('inputText').init();
 		$("#cat_track_area").data('inputText').setCallback(callback);
-		$("#cat_track_area").data('inputText').setCallbackBegin(callbackBegin);
+		$("#cat_track_area").data('inputText').setCallbackBegin(callbackBegin);*/
 
 	}
 	function updateDashboard(average,max,min,total)

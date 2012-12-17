@@ -452,7 +452,7 @@
 							var  aTmpCat= new Object();
 							db.transaction(function(db)
 										{
-											alert(cat);
+											//alert(cat);
 										//alert(cat+" "+(parseInt(month)-1)+" "+year);
 											get_cat_name_by_id(db,cat,aTmpCat);				
 										},errorDB,function(){

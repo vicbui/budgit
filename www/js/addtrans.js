@@ -940,10 +940,10 @@ $("#addtrans").live( 'pageshow',function(event, ui){
 				{
 						db.transaction(function(db)
 								{
-									getCats(db,cat);
+									getCatsName(db,cat);
 								},errorDB,function(){
 
-
+									alert(all_cat_static)
 									all_cat_static=cat.results;
 
 									//alert(search_results.length+" search results");
@@ -1077,7 +1077,8 @@ $("#addtrans").live( 'pageshow',function(event, ui){
 				 				  	 	searchCatsByName(db,string,search_results);
 				 				  	
 				 				    },errorDB,function()
-				 				    		  {  	
+				 				    		  {  
+
 				 				    		  	str="";
 				 				    		  	var sugList = $("#suggestions");
 				 				    		  	for (var i=0, len=search_results.result.length;i<len;i++)
@@ -1327,7 +1328,7 @@ $("#addtrans").live( 'pageshow',function(event, ui){
 						cat.results=new Array();
 						db.transaction(function(db)
 								{
-									getCats(db,cat);
+									getCatsName(db,cat);
 								},errorDB,function(){
 									search_results=cat.results;
 									//alert(search_results.length+" search results");

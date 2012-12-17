@@ -754,6 +754,7 @@
 
 			function abbrNum(number, decPlaces) {
 			    // 2 decimal places => 100, 3 => 1000, etc
+			    var dec=decPlaces;
 			    decPlaces = Math.pow(10,decPlaces);
 
 			    // Enumerate number abbreviations
@@ -782,7 +783,7 @@
 			             break;
 			        }
 			    }
-			     number=parseFloat(number).toFixed(2);
+			     number=parseFloat(number).toFixed(dec);
 
 			             // Add the letter for the abbreviation
 			             if (i>-1)
@@ -991,64 +992,64 @@
 
 		<div data-role="page" id="home">
 
-			<div data-role="header" data-theme="b" style="height:30px;">
+			<div data-role="header" data-theme="a" style="height:30px;">
 			
-				<h1>Budgit</h1> <!--data-rel="dialog"-->
+				<h1 style="margin-top:4px">Budgit</h1> <!--data-rel="dialog"-->
 				<!--<a href="#addPage"  data-icon="plus"  class="ui-btn-right" style="margin-top:-3px" data-inline="true" data-iconpos="notext" data-transition="slideup" >Add</a> -->
 			
 							
 			</div>
 			<!-- /header -->
 			<div data-role="content" style="padding:0px 0px 0px 0px;">
-				<div id="profile" style="height:90px; background-color:gray;color:white;padding:5px 0px 5px 10px;" class="ui-body ui-body-a">
-						<div style ="overflow: hidden;width: 100%;">
-							<div class="profilePicture">
-								<img src='img/vicbui.jpg' width='70px' height='70px' style="padding-top:5px"/>
-							</div>
-
-							<div style="padding:0px 0px 0px 10px;float:left;">
-								<h4 style="padding:0px 0px 0px 0px;margin:0px 0px 0px 0px">Vic Bui </h4>
-						
-							<div style="padding-top:5px;margin-left:0px">
-
-									<div style="font-size:14px;color:white;font-weight:bold;z-index:100;float:left;width:45px;text-align:center"> <div id="barChartbalanceL" >$13 </div>
-											<div class="left" style="font-size:11px;font-weight:bold;">Left</div>
-									</div>
-									<div style="float:left;width:120px" class="bigChart">
-									<!--	<div id="barChartbalance" style="height:50px;width:120px;z-index:0;margin-left:-3px;margin-top:-10px;float:left;display:none">
-											</div> -->
-										<div style="width:100px;margin-left:12px;margin-top:0px;" class="progress-bar red shine">
-										    <span id="barChartbalance" style="width: 25%"></span>
-										    <div class="limitLine" style="width:60px">
-										 	</div>
-										 	 <div class="dateCirle badgeBlue" style="left:44px">
-												<div class="date ">22<br>Nov</div>
-											 </div>
-										
-										</div>
-											
-									</div>
-
-									<div style="margin-top:0px;font-size:14px;color:white;font-weight:bold;z-index:100;float:left;width:50px;text-align:center"><div id="barChartbalanceS" >$15 </div>
-											<div style="font-size:11px;padding-top:0px;margin-top:0px;font-weight:bold;">Spent</div>
-									</div>
-
-								
-							</div>
+					<!--<div id='position' style="text-align:center" class="swipe"><em id="0" class='on nav'>&#x25cf</em><em id="1" class='nav'>&#x25cf</em></div>-->
+				
+				<div class="pinBig" style="margin:10px 10px 10px 10px">
+					<div class="description">
+						<div class="title" style="float:left">Nov 2012</div>
+						<div class="left" style="float:right"> 
+							<span id="barChartbalanceL">$20</span>  <span class="desc" style="font-size:10px">Left</span>
 						</div>
+						<div style="clear:both;"></div>
 					</div>
 
+
+					<div style="width:260px;margin-top:0px; height:22px" class="progress-bar red shine">
+
+									    <span id="barChartbalance" style="width: 15%"></span>
+									    <div id="barChartbalanceS" class="spentBig">
+									    	<b>$10</b> of $250 
+									    </div>	
+
+										<div class="limitLineBig" style="width:30px">
+										</div>
+									 	 <div class="dateCirle" style="left:18px">
+											<div class="date ">22</div>
+										</div>
+						
+											
+					</div>
 				</div>
-					
+
+
+				
+				<!--<div style="margin:0px 0px 0px 0px"> 
+					<hr>
+					<div class="pin" style="">
+					</div>
+				</div>-->
+
+
+
+
+
 
 					<div id="transmain" style="font-size:11px;color:dark-gray; padding:0px 5px 0px 5px;">
-					<div id='position' style="text-align:center" class="swipe"><em id="0" class='on nav'>&#x25cf</em><em id="1" class='nav'>&#x25cf</em></div>
 					
 					<div class='swipe'>
 						<div>
 							 <div style='display:block'>
-												<div id="allcats">
-												</div>
+								<div id="allcats" style="margin:0px 5px 10px 5px">
+								</div>
 
 											
 							</div>
@@ -1241,7 +1242,7 @@
 			<div data-role="header" data-theme="b" style="height:30px;">
 				<a id="cancelCatBtn" data-icon="delete" data-inline="true"  data-mini="true" data-iconpos="notext" style="margin-top:-3px; display:none">Delete</a>
 				<a id="deleteCatBtn" data-icon="delete" data-inline="true"  data-mini="true" data-iconpos="notext" data-rel="back" style="margin-top:-3px">Delete</a>
-				<h1 style="margin-top:-15px">Budgit</h1>
+				<h1 style="margin-top:-15px" id="catTitle">Budgit</h1>
 				<a id="add" data-icon="plus"  data-inline="true"  data-mini="true" class="ui-btn-right" data-iconpos="notext" style="margin-top:-3px">Post</a>
 				
 			</div>
@@ -1261,7 +1262,34 @@
 							</div>
 
 					</div>	
-				<div id="profileCat" style="height:80px; background-color:gray;color:white;padding:5px 0px 5px 10px;" class="ui-body ui-body-a profileHide">
+				<div class="pinBig" style="margin:10px 10px 10px 10px">
+					<div class="description">
+						<div class="title" style="float:left">Nov 2012</div>
+						<div class="left" style="float:right"> 
+							<span id="barCharttotalL">$20</span>  <span class="desc" style="font-size:10px">Left</span>
+						</div>
+						<div style="clear:both;"></div>
+					</div>
+
+
+					<div style="width:260px;margin-top:0px; height:22px" class="progress-bar red shine">
+
+									    <span id="barCharttotal" style="width: 15%"></span>
+									    <div id="barCharttotalS" class="spentBig">
+									    	<b>$10</b> of $250 
+									    </div>	
+
+										<div class="limitLineBig" style="width:30px">
+										</div>
+									 	 <div class="dateCirle" style="left:18px">
+											<div class="date ">22</div>
+										</div>
+						
+											
+					</div>
+				</div>
+
+				<!--<div id="profileCat" style="height:80px; background-color:gray;color:white;padding:5px 0px 5px 10px;" class="ui-body ui-body-a profileHide">
 						<div style ="overflow: hidden;width: 100%;">
 							<div style="float:left;height:60px;width:60px;text-align:center;padding:5px" class="badgeBlue">
 									<div id="dateLeft" style="font-size:40px">10</div> 
@@ -1275,8 +1303,7 @@
 											<div class="left" style="font-size:11px;font-weight:bold;">Left</div>
 									</div>
 									<div style="float:left;width:120px" class="bigChart">
-									<!--	<div id="barChartbalance" style="height:50px;width:120px;z-index:0;margin-left:-3px;margin-top:-10px;float:left;display:none">
-											</div> -->
+									
 										<div style="width:100px;margin-left:12px;margin-top:0px;" class="progress-bar red shine">
 										    <span id="barCharttotal" style="width: 25%"></span>
 										    <div class="limitLine" style="width:60px">
@@ -1293,42 +1320,22 @@
 											<div style="font-size:11px;padding-top:0px;margin-top:0px;font-weight:bold;">Spent</div>
 									</div>
 
-							<!--	<div style="float:left;padding-right:10px">
-						
-									<div id="total" style="padding-top:0px;margin-left:0px">
-
-										<div style="font-size:14px;color:white;font-weight:bold;z-index:100;float:left;width:45px;text-align:center"> <div id="barCharttotalS" >$13 </div>
-												<div id="barCharttotalSLabel" style="font-size:11px;font-weight:bold;">Spent</div>
-										</div>
-										<div style="float:left;width:120px" class="bigChart">
-											<div id="barCharttotal" style="height:50px;width:120px;z-index:0;margin-left:-3px;margin-top:-10px;float:left">
-												</div>
-										
-												
-										</div>
-
-										<div style="margin-top:0px;font-size:14px;color:white;font-weight:bold;z-index:100;float:left;width:50px;text-align:center"><div id="barCharttotalL" >$15 </div>
-												<div id="barCharttotalLLabel" style="font-size:11px;padding-top:0px;margin-top:0px;font-weight:bold;">Left</div>
-										</div>
-
-									
-										</div>
-								</div> -->
+					
 							</div>
 							
 							
 							
 						</div>	
-				</div>
+				</div>-->
 				<div style="font-size:11px;color:dark-gray; padding:5px 5px 10px 5px">
 						
-						<div id="todayTxtCat">
+						<!--<div id="todayTxtCat">
 							Today's transaction :	
 						</div>
 
 						<div style="float:left;font-weight:bold;font-size:16px;padding:16px 5px 0px 0px;text-align:center" type="text" id="catLbl" class="defaultTextActive" title="E.g: $10" value="E.g: $10" data-prevent-focus-zoom="true">#Food</div>
 
-						<input style="float:left;max-width:70%" type="text" id="cat_track_area" class="defaultTextActive" title="E.g: $10" value="E.g: $10" data-prevent-focus-zoom="true"></input>
+						<input style="float:left;max-width:70%" type="text" id="cat_track_area" class="defaultTextActive" title="E.g: $10" value="E.g: $10" data-prevent-focus-zoom="true"></input>-->
 						<!-- <div style="font-size:13px;font-weight:bold;color:gray;text-align:center;clear:both">
 							Monthly Summary 
 						</div> -->
@@ -1468,20 +1475,11 @@
 							</div>
 
 					</div>	
-			   <div id="profile" style="height:60px;overflow:hidden;;color:white;padding:8px 0px 5px 5px;" class="ui-body ui-body-a">
-					<div id="timespan" style="font-size:12px;font-weight:bold;padding-bottom:2px;text-align:center;float:left">
-						<!--<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" id="radioBtns" style="padding-top:5px">
-						
-							<input type="radio" name="transType" id="radioDate" value="+" style="font-size:10px; height:0px" data-theme="c"/>
-							<label for="radioDate" class="radiobtnTime">Date</label>
-							
-							<input type="radio" name="transType" id="radioMonth" value="-" checked="true" style="font-size:10px; height:0px" data-theme="c"/>
-							<label for="radioMonth" class="radiobtnTime">Month</label>
 
-							<input type="radio" name="transType" id="radioYear" value="-" style="font-size:10px; height:0px" data-theme="c"/>
-							<label for="radioYear" class="radiobtnTime">Year</label>
-							
-						</fieldset>-->
+				<div class="pinBig" style="margin:10px 10px 10px 10px;height:55px;overflow:hidden;">
+
+			<!--   <div id="profile" style="height:60px;overflow:hidden;;color:white;padding:8px 0px 5px 5px;" class="ui-body ui-body-a"> -->
+					<div id="timespan" style="font-size:12px;font-weight:bold;padding-bottom:2px;text-align:center;float:left;margin-left:-10px">
 						<div>
 							<div style="float:left" id="divselectDay">
 						        	<select name="selectDay" id="selectDay" data-theme="c" data-mini="true">
@@ -1506,24 +1504,23 @@
 								</select>
 					    	</div>
 					</div>
-	
-					<div id="avgSpend" style="float:right;overflow:hidden;padding-right:10px">
-						
-						<div style="">
-							<div style="float:left;height:50px;width:50px;text-align:center;vertical-align:middle;margin-top:0px" class="badgeRed">
-								<div id="amountSpent" style="font-size:12px;padding-top:5px;font-weight:bold">$20.00</div> 
-								<div style="font-size:10px">Spent</div>
-							</div>	
-						
-							<!--<div style="float:left;height:50px;width:50px;text-align:center;margin-left:5px;margin-top:0px" class="badgeGreen">
-								<div id="amountSave" style="font-size:12px;padding-top:5px;font-weight:bold">$20.00</div> 
-								<div style="font-size:10px">Save</div>
-							</div>-->
-						</div>
+			
+							<div id="avgSpend" style="float:right;overflow:hidden;margin-right:-10px;padding-left:10px">
+								<div style="">
+									<div style="height:30px;width:30px;text-align:center;vertical-align:middle;margin-top:0px" class="badgeRed">
+										<div id="amountSpent" style="font-size:12px;padding-top:0px;font-weight:bold">$20</div> 
+										<div style="font-size:10px">Spent</div>
+									</div>	
+								
+									<div style="height:30px;width:30px;text-align:center;margin-top:2px" class="badgeGreen">
+										<div id="amountSave" style="font-size:12px;padding-top:0px;font-weight:bold">$20</div> 
+										<div style="font-size:10px">Save</div>
+									</div>
+								</div>
 
-					</div>
+							</div>
 				</div>
-				<div id='positionInsight' style="text-align:center"><em id="0" class='on navone'>&#x25cf</em><em id="1" class='navone'>&#x25cf</em><em id="2" class='navone'>&#x25cf</em></div>
+				<div id='positionInsight' style="text-align:center;margin-top:-10px"><em id="0" class='on navone'>&#x25cf</em><em id="1" class='navone'>&#x25cf</em><em id="2" class='navone'>&#x25cf</em></div>
 				<div id='slider' class="swipe" style="margin-top:-10px">
 					<div>
 						<div style="display:block;text-align:center">
@@ -1652,11 +1649,11 @@
 			<!-- /header -->
 			<div data-role="content">
 				<div style="">
-    				<span id="txtparsed" style="display:none"></span>
+    				<span id="txtparsed" style="display:block"></span>
 	    				How much can you spend a month?
 	    				<input type="tel" pattern="\d+(\.\d*)?" placeholder="Budget Total (SGD)" id="budgetTxt" value="0.00"></input>
 	    				
-	    			<div id="budgetDetails" style="display:none">
+	    			<div id="budgetDetails" style="display:block">
 	    				What do you want to spend on ?
 	    				<ul id="expenseList" data-role="listview" data-inset="true">
 							<li><a href="#expensesPage" data-transition="slide"> Number of Categories</a> <span id="catCounter"class="ui-li-count">all</span></a> </li>
@@ -1710,13 +1707,143 @@
 <!--Experiemnt page -->
 
 		<div data-role="page" id="test">
-			<div data-role="header" data-theme="b" style="height:35px;">
-				
+			<div data-role="header" data-theme="a" style="height:30px;">
+				<h1 style="margin-top:4px"> Budgiit </h1>
 			</div>
 			<div data-role="content">
-				<div id="chart1">
+
+				<div class="pinBig">
+					<div class="description">
+						<div class="title" style="float:left">Nov 2012</div>
+						<div class="left" style="float:right">$20  <span style="font-size:10px">Left</span></div>
+						<div style="clear:both;"></div>
+					</div>
+
+					<div style="width:260px;margin-top:0px; height:22px" class="progress-bar red shine">
+
+									    <span id="barChartbalance" style="width: 15%"></span>
+									    <div class="spentBig">
+									    	<b>$10</b> of $250 
+									    </div>	
+
+										<div class="limitLineBig" style="width:30px">
+										</div>
+									 	 <div class="dateCirle" style="left:18px">
+											<div class="date ">22</div>
+										</div>
+						
+							<!--<div class="ribbon">
+							  <div class="date">23</div>
+							</div>-->						
+					</div>
 				</div>
+				<div class="pin">
+					<div class="description">
+						<div class="title" style="float:left; ">Food</div>
+						<div class="left" style="float:right;">$20 <span style="font-size:10px">Left</span></div>
+						<div style="clear:both;"></div>
+					</div>
+
+					<div style="width:260px;margin-top:2px" class="progress-bar green shine">
+
+									    <span id="barChartbalance" style="width: 60%"></span>
+									    	 	<div class="spent">
+									    			<b>$10</b> of $250 
+									    		</div>	
+											    <div class="limitLine" style="width:30px">
+										 		</div>					
+					</div>
+				</div>
+				<div class="pin">
+					<div class="description">
+						<div class="title" style="float:left; ">Food</div>
+						<div class="left" style="float:right;">$20 <span style="font-size:10px">Left</span></div>
+						<div style="clear:both;"></div>
+					</div>
+
+					<div style="width:260px;margin-top:2px" class="progress-bar green shine">
+
+									    <span id="barChartbalance" style="width: 60%"></span>
+									    	 	<div class="spent">
+									    			<b>$10</b> of $250 
+									    		</div>	
+											    <div class="limitLine" style="width:30px">
+										 		</div>					
+					</div>
+				</div>
+				<div class="pin">
+					<div class="description">
+						<div class="title" style="float:left; ">Food</div>
+						<div class="left" style="float:right;">$20 <span style="font-size:10px">Left</span></div>
+						<div style="clear:both;"></div>
+					</div>
+
+					<div style="width:260px;margin-top:2px" class="progress-bar green shine">
+
+									    <span id="barChartbalance" style="width: 60%"></span>
+									    	 	<div class="spent">
+									    			<b>$10</b> of $250 
+									    		</div>	
+											    <div class="limitLine" style="width:30px">
+										 		</div>					
+					</div>
+				</div>
+				<div class="pin">
+					<div class="description">
+						<div class="title" style="float:left; ">Food</div>
+						<div class="left" style="float:right;">$20 <span style="font-size:10px">Left</span></div>
+						<div style="clear:both;"></div>
+					</div>
+
+					<div style="width:260px;margin-top:2px" class="progress-bar green shine">
+
+									    <span id="barChartbalance" style="width: 60%"></span>
+									    	 	<div class="spent">
+									    			<b>$10</b> of $250 
+									    		</div>	
+											    <div class="limitLine" style="width:30px">
+										 		</div>					
+					</div>
+				</div>
+
+					<div class="pin">
+					<div class="description">
+						<div class="title" style="float:left; ">Food</div>
+						<div class="left" style="float:right;">$20 <span style="font-size:10px">Left</span></div>
+						<div style="clear:both;"></div>
+					</div>
+
+					<div style="width:260px;margin-top:2px" class="progress-bar green shine">
+
+									    <span id="barChartbalance" style="width: 60%"></span>
+									    	 	<div class="spent">
+									    			<b>$10</b> of $250 
+									    		</div>	
+											    <div class="limitLine" style="width:30px">
+										 		</div>					
+					</div>
+				</div>
+
+
+			
+
+
+				
 			</div>
+				<!-- footer-->
+			<div data-role="footer" data-id="footbar" data-position="fixed" data-theme="a"  data-tap-toggle="false">
+				<div data-role="navbar">
+					<ul>
+						<li><a href="#home" >Overall</a></li>
+						<li><a href="#analytic" >Insight</a></li>
+						<li style=""> <a class="my-btn" href="#addtrans" data-corners="true" data-transition="slideup">Add</a></li>
+						<li><a href="#budget" class="ui-btn-active ui-state-persist">Budget</a></li>
+						<li><a href="#">More</a></li>
+
+					</ul>
+				</div>
+		   	</div>
+			<!-- footer-->
 		</div>
 
 <!-- Experiement page -->

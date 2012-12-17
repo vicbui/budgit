@@ -186,7 +186,7 @@ $("#home").live( 'pageshow',function(event, ui){
 				{
 						db.transaction(function(db)
 								{
-									getCats(db,cat);
+									getCatsName(db,cat);
 								},errorDB,function(){
 
 
@@ -253,11 +253,11 @@ $("#home").live( 'pageshow',function(event, ui){
 												spent+=cats.results[i].totalSpend;
 												//alert(spent);
 												//alert(spent+ " "+left);
-												$("#allcats").append("<div id='"+cats.results[i].name+"'></div><div style='clear:both'></div>");
 												//alert(cat.name);
 												var isBudget=0,budgetValue=0;
 												if (cats.results[i].budget!=-1)
 												{
+
 													isBudget=1;
 													budgetValue=cats.results[i].budget.amount-cats.results[i].totalSpend;
 													left += (cats.results[i].budget.amount-cats.results[i].totalSpend);
@@ -267,6 +267,8 @@ $("#home").live( 'pageshow',function(event, ui){
 													{
 														//alert(cats.results[i].budget.amount);
 														//alert((cats.results[i].budget.amount/max));
+														$("#allcats").append("<div class='pin' id='"+cats.results[i].name+"'></div>");
+
 															$("#"+cats.results[i].name).barChart(
 																{
 																'id'         : cats.results[i].name,
@@ -294,7 +296,7 @@ $("#home").live( 'pageshow',function(event, ui){
 												//alert(catAdhocTransactions.results.budget);
 												if ((catAdhocTransactions.results.budget!=0) || (catAdhocTransactions.results.totalSpend!=0))
 												{
-													$("#allcats").prepend("<div id='"+catAdhocTransactions.results.name+"'></div><div style='clear:both'></div>");
+													$("#allcats").append("<div class='pin' id='"+catAdhocTransactions.results.name+"'></div>");
 
 													$("#"+catAdhocTransactions.results.name).barChart(
 																	{
@@ -339,32 +341,33 @@ function showProgressBar(id,value1,value2)
 							var idw2=name+"L";
 							var idw=name+"S";
 							var total=value1+value2;
-							var perc1=Math.round(Number((value1/total)*100));
-							var perc2=Math.round(Number((value2/total)*100));
+							var perc1=Math.round(Number((value1/total)*260));
+							var perc2=Math.round(Number((value2/total)*260));
 
 
 							value1=Math.abs(value1);
 							value2=Math.abs(value2);
-
 							$("#"+name).css("width",perc2+"px");
-							$("#" + idw).text("$"+abbrNum(value1,2));
-							$("#" + idw2).text("$"+abbrNum(Math.abs(value2),2));
+							$("#" + idw).text("$"+abbrNum(value1,0)+" of $"+abbrNum(Math.abs(total),0));
+							$("#" + idw2).text("$"+abbrNum(Math.abs(value2),0));
 							
-							if (perc2<0)
+
+
+							if (perc2<=0)
 							{
 								//alert("test");
-								$("#" + idw2).parent().find(".left").text("Over");
+								$("#" + idw2).parent().find(".desc").text("Over");
 
 								$("#" + idw2).css("color","red");
-								$("#" + idw2).parent().find(".left").css("color","red");
+								$("#" + idw2).parent().find(".desc").css("color","red");
 								//$("#" + idw2).text("$("+Math.abs(abbrNum(value2,2))+")");
 							}
 							else
 							{
-								$("#" + idw2).parent().find(".left").text("Left");
+								$("#" + idw2).parent().find(".desc").text("Left");
 
-								$("#" + idw2).css("color","white");
-								$("#" + idw2).parent().find(".left").css("color","white");
+								$("#" + idw2).css("color","gray");
+								$("#" + idw2).parent().find(".desc").css("color","gray");
 							}
 
 							$("#"+name).parent().removeClass();
@@ -375,10 +378,14 @@ function showProgressBar(id,value1,value2)
 							var totalDays= noDaysInMonth((now.getMonth()+1)+"",now.getFullYear()) ;
 
 							var curr_date = parseInt(now.getDate());
-							var limit=Math.round(curr_date*100/totalDays);
+							var limit=Math.round(curr_date*260/totalDays);
 							//alert(totalDays);
-							$("#"+name).parent().find(".limitLine").css("width",limit+"px");
-							$("#"+name).parent().find(".dateCirle").css("left",(limit-15)+"px");
+							
+						
+							$("#"+name).parent().find(".limitLineBig").css("width",limit+"px");
+							$("#"+name).parent().find(".dateCirle").css("left",(limit-12)+"px");
+		
+							//$("#"+name).parent().find(".ribbon").css("left",(limit)+"px");
 
 							var curr_month=now.getMonth();
 
@@ -387,7 +394,10 @@ function showProgressBar(id,value1,value2)
 							{
 								day="0"+day;
 							}
-							$("#"+name).parent().find(".dateCirle").find(".date").text(day+" "+getMonthNames(curr_month));
+
+							$("#"+name).parent().find(".dateCirle").find(".date").text(day);
+
+							//$("#"+name).parent().find(".ribbon").find(".date").text(day);
 
 							/*$("#"+name).parent().removeClass();
 							$("#"+name).parent().addClass('progressBar');
